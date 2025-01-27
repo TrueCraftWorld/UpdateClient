@@ -5,17 +5,13 @@ CONFIG += c++17 link_pkgconfig disable-desktop
  
 
 SOURCES += \
-        $$PWD/NetworkDiscover.cpp \
         $$PWD/updateclient.cpp \
-        $$PWD/wifilistmodel.cpp
 
-RESOURCES += $$PWD/wifimodule.qrc
+RESOURCES += $$PWD/updater.qrc
 
 HEADERS += \
-    $$PWD/NetworkDiscover.h \
     $$PWD/package.h \
     $$PWD/protocolcommand.h \
     $$PWD/updateConfig.h \
-    $$PWD/updateclient.h \
-    $$PWD/wifilistmodel.h
+    $$PWD/updateclient.h
 

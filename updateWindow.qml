@@ -24,9 +24,18 @@ Item {
     }
     Rectangle {
         id: updateButton
+        width: 400
+        height: 100
+        color: "green"
         anchors {
-            left:parent.left
-            top: parent.top
+            centerIn: parent
+        }
+        Text {
+            id: textButt
+            anchors {
+                fill: parent
+            }
+            text: qsTr("text")
         }
         MouseArea {
             anchors.fill: parent
@@ -35,9 +44,6 @@ Item {
                     update_handle.requestUpdate()
             }
         }
-        width: 400
-        height: 100
-        color: "darkblue"
     }
     UpdateClient {
         id: update_handle
