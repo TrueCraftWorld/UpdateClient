@@ -2,11 +2,12 @@ import QtQuick 2.15
 
 import BackEnd 1.0
 Item {
-    id: updateRquester
+    id: updateRequester
+    signal returnButtonPressed()
     width: 640
     height: 480
     visible: true
-    signal returnButtonPressed()
+
 
     Rectangle {
         id: exitButton
@@ -44,6 +45,20 @@ Item {
                     update_handle.requestUpdate()
             }
         }
+    }
+    Rectangle {
+        id: returnButton
+        anchors {
+            left:parent.left
+            bottom: parent.bottom
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: updateRequester.returnButtonPressed()
+        }
+        width: 55
+        height: 55
+        color: "darkblue"
     }
     UpdateClient {
         id: update_handle
