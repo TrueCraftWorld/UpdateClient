@@ -161,22 +161,24 @@ void UpdateClient::readSocket()
     if (bytesAwaited == -1 && updateSocket->bytesAvailable() >=128 ) {
 
         QByteArray data = updateSocket->readAll();
-        qDebug() << "qwerty";
+
         updateFile.clear();
+
         QByteArray header;
+
         header.append(header.mid(0, 128));
-        // in >> header;
-        // if (!in.commitTransaction())
-        //     return;
-        qDebug() << header.size() ;
+
         QString headerStr = header;
         updateFile.append(header.mid(128));
 
         QString fileName = headerStr.split(",")[0].split(":")[1];
+
         int dotIdx = fileName.lastIndexOf('.');
+
         QString fileSuffix = "";
         if (dotIdx != -1){
             fileSuffix = headerStr.mid(dotIdx);
+
         }
         QString saveFilePath = "/usr/share/qtpr/" + fileName;
 
@@ -188,28 +190,15 @@ void UpdateClient::readSocket()
 
         QString fileSize = headerStr.split(",")[1].split(":")[1];
         bytesAwaited = fileSize.toInt();
-        qDebug() << m_FileName;
-        qDebug() << fileSize.toInt();
-qDebug() << updateFile.size() ;
-        // qDebug() << "headerRead";
-        // qDebug() << count;
-        // qDebug() << "fileLeft";
-        // qDebug() << bytesAwaited;
-        // updateSocket->readAll();
 
-    // } else /*if (updateSocket->bytesAvailable() >= bytesAwaited)*/ {
+
     } else if (updateSocket->bytesAvailable() > 0) {
-        // in.startTransaction();
         QByteArray data = updateSocket->readAll();
-        // in >> data;
 
         if (data.size())
             updateFile.append(data);
-
-        qDebug() << "readwww";
-        qDebug() << updateSocket->bytesAvailable();
     }
-    qDebug() << updateFile.size() ;
+
     if (updateFile.size() == bytesAwaited) {
         if (!in.commitTransaction()) {
             // return;
@@ -223,22 +212,6 @@ qDebug() << updateFile.size() ;
         }
         bytesAwaited = -1;
     }
-
-    // in.startTransaction();
-
-    // if (in.commitTransaction() == false) {
-    //     return;
-    // }
-
-
-    // updateFile = header.mid(128);
-
-    // if (file.open(QIODevice::WriteOnly)) {
-    //     file.write(updateFile);
-    // }
-
-    // updateSocket->disconnect();
-    // updateSocket-
 }
 
 // void NetworkControl::registerNetworkControl()
