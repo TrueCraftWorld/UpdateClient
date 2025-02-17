@@ -110,6 +110,7 @@ void UpdateClient::receiveFile()
             }
         }
     }
+    break;
     case _TRANSFER_ACK_ :
     {
         qDebug()<<"Send file success!";

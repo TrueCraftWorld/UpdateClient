@@ -11,10 +11,10 @@ struct TransferData{
     QByteArray dataBlock;
     qint64 bytesWritten;
     qint64 bytesToWrite;
-    qint64 payloadSize;
+    quint64 payloadSize;
     int command;
-    qint64 bytesReceived;
-    qint64 fileNameSize;
+    quint64 bytesReceived;
+    quint64 fileNameSize;
 };
 
 #endif // PACKAGE_H
