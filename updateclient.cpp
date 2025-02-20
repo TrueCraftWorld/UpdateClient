@@ -39,7 +39,6 @@ void UpdateClient::requestUpdate()
         qDebug() << "connected to Host";
 
     });
-    // connect(updateSocket, &QTcpSocket::readyRead, this, &UpdateClient::readSocket);
     connect(updateSocket, &QTcpSocket::readyRead, this, &UpdateClient::receiveFile);
     connect(updateSocket, &QTcpSocket::bytesWritten, this, &UpdateClient::receiveFile);
     updateFile.clear();
@@ -53,6 +52,20 @@ void UpdateClient::registerUpdateClient()
     qmlRegisterType<UpdateClient>("BackEnd", 1, 0, "UpdateClient");
 }
 
+/**
+ * @brief UpdateClient::receiveFile
+ * @details Пока для себя - передаём всегда минимум три юинт64 в датастриме (т.е. как минимум всегда хэдер)
+ * первый юинт - полное количество байт этого сообщения (может прийти не за один раз)
+ * второй юинт - команда, т.е. что именно передаём
+ * третий юинт - размер дополнительных данных в хэдере
+ * процесс получения такой
+ * 1. проверяем флаг незаконченного сообщения - если есть, просто докидываем все недостающие байты в дата блок
+ * 2. если сообщение новое - проверяем полностью ли пришёл хедер. да - читаем, нет - ждём
+ * 3. читаем хэдер, если пришло байт меньше чем ждём - ставим флаг.
+ * 4. если наконец получили всё сообщение - обрабатываем данные согласно команде, затираем флаги, затираем датаблок.
+ */
+
+
 void UpdateClient::receiveFile()
 {
 
@@ -64,7 +77,7 @@ void UpdateClient::receiveFile()
         return;
     }
     QDataStream in(updateSocket);
-    in.setVersion(QDataStream::Qt_5_0);
+    in.setVersion(QDataStream::Qt_5_15);
     if(data.bytesReceived <= sizeof(qint64)*3)
     {
         if(updateSocket->bytesAvailable() >= sizeof(qint64)*3
@@ -74,33 +87,20 @@ void UpdateClient::receiveFile()
                 >> data.fileNameSize >> temp;
             data.bytesReceived += sizeof(qint64)*3;
         }
-        if(updateSocket->bytesAvailable() >= data.fileNameSize
-            && data.fileNameSize!=0)
-        {
 
-            in >> data.fileName;
-            data.bytesReceived += data.fileNameSize;
-        }
     }
     switch(data.command)
     {
     case _TRANSFER_FILE_ :
     {
         transferfileflag = 1;
-        if(data.fileNameSize != 0)
+        if(!data.fileName.isEmpty())
         {
-            if(SYNFlag == 1) {
-                tempFileName = "./FileList/";
 
-            } else if(DOWNFlag == 1) {
-                tempFileName = "./DownloadFile/";
+            tempFileName = "/usr/share/qtpr/";
 
-            } else {
-                tempFileName = "/usr/share/qtpr/";
-
-            }
             tempFileName += data.fileName;
-            qDebug()<<tempFileName;
+            // qDebug()<<tempFileName;
             if (!data.localFile || !data.localFile->isOpen()) {
                 data.localFile = new QFile(tempFileName);
                 if(!data.localFile->open(QFile::WriteOnly)) {
@@ -108,9 +108,29 @@ void UpdateClient::receiveFile()
                     return;
                 }
             }
+        } else {
+            if(updateSocket->bytesAvailable() >= data.fileNameSize
+                && data.fileNameSize!=0)
+            {
+
+                in >> data.fileName;
+                data.bytesReceived += data.fileNameSize;
+            }
         }
     }
     break;
+    case _TRANSFER_LIST_:
+    {
+        synfilelistflag = 1;
+        if(updateSocket->bytesAvailable() >= data.fileNameSize
+            && data.fileNameSize!=0)
+        {
+
+            in >> data.fileName;
+            data.bytesReceived += data.fileNameSize;
+        }
+
+    }
     case _TRANSFER_ACK_ :
     {
         qDebug()<<"Send file success!";
@@ -128,16 +148,22 @@ void UpdateClient::receiveFile()
     }
     if(data.bytesReceived == data.totalBytes)
     {
-        clearNetworkData();
+
         if(transferfileflag == 1)
         {
             transferfileflag = 0;
+
             data.localFile->close();
+            emit fileReceived(data.fileName);
             qDebug()<<"Receive file success!";
         }
         else if(synfilelistflag == 1)
         {
             synfilelistflag = 0;
+            m_updateFileList = data.fileName.split('%');
+            if (!m_updateFileList.empty()) {
+                emit fileListReceived();
+            }
             qDebug()<<"Request file list success!";
         }
         else if(downflag == 1)
@@ -145,6 +171,7 @@ void UpdateClient::receiveFile()
             downflag = 0;
             qDebug()<<"Download file success!";
         }
+        clearNetworkData();
     }
 }
 
@@ -156,63 +183,11 @@ void UpdateClient::clearNetworkData()
     data.dataBlock.resize(0);
 }
 
-void UpdateClient::readSocket()
+
+
+QStringList UpdateClient::updateFileList() const
 {
-    qDebug() << "read";
-    if (bytesAwaited == -1 && updateSocket->bytesAvailable() >=128 ) {
-
-        QByteArray data = updateSocket->readAll();
-
-        updateFile.clear();
-
-        QByteArray header;
-
-        header.append(header.mid(0, 128));
-
-        QString headerStr = header;
-        updateFile.append(header.mid(128));
-
-        QString fileName = headerStr.split(",")[0].split(":")[1];
-
-        int dotIdx = fileName.lastIndexOf('.');
-
-        QString fileSuffix = "";
-        if (dotIdx != -1){
-            fileSuffix = headerStr.mid(dotIdx);
-
-        }
-        QString saveFilePath = "/usr/share/qtpr/" + fileName;
-
-        QFileInfo info(saveFilePath);
-        while (info.exists()){
-            info.setFile(saveFilePath + '.' + fileSuffix);
-        }
-        m_FileName = info.absoluteFilePath();
-
-        QString fileSize = headerStr.split(",")[1].split(":")[1];
-        bytesAwaited = fileSize.toInt();
-
-
-    } else if (updateSocket->bytesAvailable() > 0) {
-        QByteArray data = updateSocket->readAll();
-
-        if (data.size())
-            updateFile.append(data);
-    }
-
-    if (updateFile.size() == bytesAwaited) {
-        if (!in.commitTransaction()) {
-            // return;
-            qDebug() << "nonononono";
-        }
-        QFile file(m_FileName);
-        if (file.open(QIODevice::WriteOnly)) {
-            file.write(updateFile);
-            file.close();
-            qDebug() << "filewrite";
-        }
-        bytesAwaited = -1;
-    }
+    return m_updateFileList;
 }
 
 // void NetworkControl::registerNetworkControl()
