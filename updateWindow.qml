@@ -29,7 +29,8 @@ Item {
         height: 100
         color: "green"
         anchors {
-            centerIn: parent
+            top: parent.top
+            topMargin: 15
         }
         Text {
             id: textButt
@@ -41,7 +42,6 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                    // console.log("update_press")
                     update_handle.requestUpdate()
             }
         }
@@ -60,8 +60,29 @@ Item {
         height: 55
         color: "darkblue"
     }
+    ListView {
+        id: updateView
+        anchors {
+            left: returnButton.right
+            right: parent.right
+            bottom: parent.bottom
+            top: updateButton.bottom
+            margins: 15
+        }
+    }
+
     UpdateClient {
         id: update_handle
+
+    }
+    Connections {
+        target: update_handle
+        function onFileListReceived() {
+            updateView.model = update_handle.updateFileList()
+        }
+        // function onUpdateMe() {
+        //     wifi_handle.updateWiFiInfo()
+        // }
     }
 
 }

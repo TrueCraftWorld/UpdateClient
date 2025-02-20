@@ -12,8 +12,6 @@
 UpdateClient::UpdateClient( QObject *parent)
     : QObject(parent)
 {
-    qDebug() << "meBorn";
-
     flag = false;
     SYNFlag = 0;
     DOWNFlag = 0;
@@ -29,15 +27,12 @@ UpdateClient::UpdateClient( QObject *parent)
 
 void UpdateClient::requestUpdate()
 {
-    qDebug() << "request Update";
     updateSocket = new QTcpSocket(this);
 
     QHostAddress updateHost(UPDATE_SERV_IP);
 
     connect(updateSocket, &QTcpSocket::connected, this, [this](){
         headerReaded=false;
-        qDebug() << "connected to Host";
-
     });
     connect(updateSocket, &QTcpSocket::readyRead, this, &UpdateClient::receiveFile);
     connect(updateSocket, &QTcpSocket::bytesWritten, this, &UpdateClient::receiveFile);
@@ -64,8 +59,6 @@ void UpdateClient::registerUpdateClient()
  * 3. читаем хэдер, если пришло байт меньше чем ждём - ставим флаг.
  * 4. если наконец получили всё сообщение - обрабатываем данные согласно команде, затираем флаги, затираем датаблок.
  */
-
-
 void UpdateClient::receiveFile()
 {
 
@@ -94,28 +87,18 @@ void UpdateClient::receiveFile()
     case _TRANSFER_FILE_ :
     {
         transferfileflag = 1;
-        if(!data.fileName.isEmpty())
-        {
-
+        if(!data.fileName.isEmpty()) {
             tempFileName = "/usr/share/qtpr/";
-
             tempFileName += data.fileName;
-            // qDebug()<<tempFileName;
             if (!data.localFile || !data.localFile->isOpen()) {
                 data.localFile = new QFile(tempFileName);
-                if(!data.localFile->open(QFile::WriteOnly)) {
-                    qDebug()<<"open local file error!";
+                if(!data.localFile->open(QFile::WriteOnly))
                     return;
-                }
             }
-        } else {
-            if(updateSocket->bytesAvailable() >= data.fileNameSize
-                && data.fileNameSize!=0)
-            {
-
-                in >> data.fileName;
-                data.bytesReceived += data.fileNameSize;
-            }
+        } else  if(updateSocket->bytesAvailable() >= data.fileNameSize
+                && data.fileNameSize!=0) {
+            in >> data.fileName;
+            data.bytesReceived += data.fileNameSize;
         }
     }
     break;
@@ -123,9 +106,7 @@ void UpdateClient::receiveFile()
     {
         synfilelistflag = 1;
         if(updateSocket->bytesAvailable() >= data.fileNameSize
-            && data.fileNameSize!=0)
-        {
-
+            && data.fileNameSize!=0) {
             in >> data.fileName;
             data.bytesReceived += data.fileNameSize;
         }
@@ -148,26 +129,19 @@ void UpdateClient::receiveFile()
     }
     if(data.bytesReceived == data.totalBytes)
     {
-
-        if(transferfileflag == 1)
-        {
+        if(transferfileflag == 1) {
             transferfileflag = 0;
-
             data.localFile->close();
             emit fileReceived(data.fileName);
             qDebug()<<"Receive file success!";
-        }
-        else if(synfilelistflag == 1)
-        {
+        } else if(synfilelistflag == 1) {
             synfilelistflag = 0;
             m_updateFileList = data.fileName.split('%');
             if (!m_updateFileList.empty()) {
                 emit fileListReceived();
             }
             qDebug()<<"Request file list success!";
-        }
-        else if(downflag == 1)
-        {
+        } else if(downflag == 1) {
             downflag = 0;
             qDebug()<<"Download file success!";
         }
@@ -183,14 +157,8 @@ void UpdateClient::clearNetworkData()
     data.dataBlock.resize(0);
 }
 
-
-
 QStringList UpdateClient::updateFileList() const
 {
     return m_updateFileList;
 }
 
-// void NetworkControl::registerNetworkControl()
-// {
-//     qmlRegisterType<NetworkControl>("BackEnd", 1, 0, "NetworkSearch");
-// }

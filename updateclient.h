@@ -18,19 +18,38 @@ public:
         SENDING,
     };
     explicit UpdateClient(QObject *parent = nullptr);
+
+    /**
+     * @brief запрос обновления
+     * @details попытка подключения к захардкоженому адресу сервера обновлений
+     * успешным результатом должно стать получение от сервера списка доступных
+     * к выгрузке файлов
+     */
     Q_INVOKABLE void requestUpdate();
+
+    /**
+     * @brief updateFileList
+     * @return возвращает текущий список доступных к загрузке файлов
+     */
+    Q_INVOKABLE QStringList updateFileList() const;
 
     /**
      * @brief выполянет регистрацию класса в qml
      */
     static void registerUpdateClient();
-    QStringList updateFileList() const;
 
 signals:
+    /**
+     * @brief сигнал об успешной загрузке файла
+     * @param полный путь к файлу вместе с именем
+     */
     void fileReceived(const QString& path);
+
+    /**
+     * @brief сигнал об успешном получении списка файлов
+     */
     void fileListReceived();
 private:
-    void receiveFile2();
     void receiveFile();
     void clearNetworkData();
 
