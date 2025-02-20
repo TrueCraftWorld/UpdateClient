@@ -62,12 +62,27 @@ Item {
     }
     ListView {
         id: updateView
+        spacing: 5
+
+        clip: true
         anchors {
             left: returnButton.right
             right: parent.right
             bottom: parent.bottom
             top: updateButton.bottom
             margins: 15
+        }
+        delegate: Rectangle {
+            required property string modelData
+            width: 500
+            height: 60
+            color: "white"
+            Text {
+                id: text
+                text: parent.modelData
+                anchors.fill: parent
+                color: "black"
+            }
         }
     }
 
