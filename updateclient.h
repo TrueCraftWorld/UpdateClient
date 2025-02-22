@@ -38,6 +38,8 @@ public:
      */
     static void registerUpdateClient();
 
+    Q_INVOKABLE void requestFile(const QString& file);
+
 signals:
     /**
      * @brief сигнал об успешной загрузке файла

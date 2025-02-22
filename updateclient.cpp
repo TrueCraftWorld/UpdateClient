@@ -47,6 +47,30 @@ void UpdateClient::registerUpdateClient()
     qmlRegisterType<UpdateClient>("BackEnd", 1, 0, "UpdateClient");
 }
 
+void UpdateClient::requestFile(const QString &file)
+{
+    data.bytesWritten = 0;
+    data.fileName = "";
+    data.localFile = nullptr;
+    data.totalBytes = 0;
+
+    QDataStream sendOut(&data.dataBlock,QIODevice::WriteOnly);
+
+    sendOut.setVersion(QDataStream::Qt_5_15);
+
+    sendOut << qint64(0) << qint64(0) << qint64(0)<< file;
+    data.totalBytes += data.dataBlock.size();
+
+    sendOut.device()->seek(0);
+
+    sendOut << data.totalBytes<<_SELECT_FILE_
+            <<qint64((data.dataBlock.size()-(sizeof(qint64)*3)));
+
+    qint64 sum = updateSocket->write(data.dataBlock);
+    updateSocket->waitForBytesWritten(2000);
+    data.bytesToWrite = data.totalBytes - sum;
+}
+
 /**
  * @brief UpdateClient::receiveFile
  * @details Пока для себя - передаём всегда минимум три юинт64 в датастриме (т.е. как минимум всегда хэдер)

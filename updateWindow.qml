@@ -83,6 +83,12 @@ Item {
                 anchors.fill: parent
                 color: "black"
             }
+            TapHandler {
+                onTapped: {
+                    // createPasswordPopUp(ssid_string.text)
+                    update_handle.requestFile(text.text)
+                }
+            }
         }
     }
 
