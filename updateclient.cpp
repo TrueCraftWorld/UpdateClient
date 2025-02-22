@@ -111,18 +111,22 @@ void UpdateClient::receiveFile()
     case _TRANSFER_FILE_ :
     {
         transferfileflag = 1;
+        if(updateSocket->bytesAvailable() >= data.fileNameSize
+            && data.fileNameSize!=0 && data.fileName.isEmpty()) {
+            in >> data.fileName;
+            data.bytesReceived += data.fileNameSize;
+        }
         if(!data.fileName.isEmpty()) {
-            tempFileName = "/usr/share/qtpr/";
+            // tempFileName = "/usr/share/qtpr/";
+            tempFileName += "/home/kikorik/garbage/";
             tempFileName += data.fileName;
             if (!data.localFile || !data.localFile->isOpen()) {
                 data.localFile = new QFile(tempFileName);
-                if(!data.localFile->open(QFile::WriteOnly))
+                if(!data.localFile->open(QFile::WriteOnly)){
+                    qDebug() << data.localFile->error();
                     return;
+                }
             }
-        } else  if(updateSocket->bytesAvailable() >= data.fileNameSize
-                && data.fileNameSize!=0) {
-            in >> data.fileName;
-            data.bytesReceived += data.fileNameSize;
         }
     }
     break;
@@ -178,6 +182,7 @@ void UpdateClient::clearNetworkData()
     data.totalBytes = 0;
     data.bytesReceived = 0;
     data.fileNameSize = 0;
+    data.fileName.clear();
     data.dataBlock.resize(0);
 }
 
