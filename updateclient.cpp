@@ -35,7 +35,7 @@ void UpdateClient::requestUpdate()
         headerReaded=false;
     });
     connect(updateSocket, &QTcpSocket::readyRead, this, &UpdateClient::receiveFile);
-    connect(updateSocket, &QTcpSocket::bytesWritten, this, &UpdateClient::receiveFile);
+    // connect(updateSocket, &QTcpSocket::bytesWritten, this, &UpdateClient::receiveFile);
     updateFile.clear();
 
     updateSocket->bind(updateHost, 11111);
@@ -93,19 +93,22 @@ void UpdateClient::receiveFile()
     {
         return;
     }
+    qDebug() << updateSocket->bytesAvailable() << "\n";
     QDataStream in(updateSocket);
     in.setVersion(QDataStream::Qt_5_15);
-    if(data.bytesReceived <= sizeof(qint64)*3)
-    {
+    // if(data.bytesReceived <= sizeof(qint64)*3)
+    // {
         if(updateSocket->bytesAvailable() >= sizeof(qint64)*3
             && (data.fileNameSize==0))
         {
             in >> data.totalBytes >> data.command
                 >> data.fileNameSize >> temp;
             data.bytesReceived += sizeof(qint64)*3;
+        } else {
+            // return;
         }
 
-    }
+    // }
     switch(data.command)
     {
     case _TRANSFER_FILE_ :
@@ -116,16 +119,14 @@ void UpdateClient::receiveFile()
             in >> data.fileName;
             data.bytesReceived += data.fileNameSize;
         }
-        if(!data.fileName.isEmpty()) {
+        if(!data.fileName.isEmpty() && data.localFile.isNull()) {
             // tempFileName = "/usr/share/qtpr/";
             tempFileName += "/home/kikorik/garbage/";
             tempFileName += data.fileName;
-            if (!data.localFile || !data.localFile->isOpen()) {
-                data.localFile = new QFile(tempFileName);
-                if(!data.localFile->open(QFile::WriteOnly)){
-                    qDebug() << data.localFile->error();
-                    return;
-                }
+            data.localFile.reset(new QFile(tempFileName));
+            if(!data.localFile->open(QFile::WriteOnly)){
+                qDebug() << data.localFile->error();
+                return;
             }
         }
     }
@@ -152,14 +153,15 @@ void UpdateClient::receiveFile()
     {
         data.bytesReceived += updateSocket->bytesAvailable();
         data.dataBlock = updateSocket->readAll();
-        data.localFile->write(data.dataBlock);
+        // data.localFile->write(data.dataBlock);
         data.dataBlock.resize(0);
     }
     if(data.bytesReceived == data.totalBytes)
     {
         if(transferfileflag == 1) {
             transferfileflag = 0;
-            data.localFile->close();
+            // data.localFile->close();
+            data.localFile->write(data.dataBlock);
             emit fileReceived(data.fileName);
             qDebug()<<"Receive file success!";
         } else if(synfilelistflag == 1) {
@@ -184,6 +186,9 @@ void UpdateClient::clearNetworkData()
     data.fileNameSize = 0;
     data.fileName.clear();
     data.dataBlock.resize(0);
+    if (!data.localFile.isNull() && data.localFile->isOpen())
+        data.localFile->close();
+    data.localFile.reset(nullptr);
 }
 
 QStringList UpdateClient::updateFileList() const

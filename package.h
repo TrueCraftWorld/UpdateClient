@@ -2,10 +2,11 @@
 #define PACKAGE_H
 
 #include <QtCore>
+#include <QSharedPointer>
 
 
 struct TransferData{
-    QFile *localFile;
+    QSharedPointer<QFile> localFile = nullptr;
     qint64 totalBytes;
     QString fileName;
     QByteArray dataBlock;
