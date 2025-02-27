@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>updateWindow.qml</file>
+        <file>ServiceButton.qml</file>
     </qresource>
 </RCC>
