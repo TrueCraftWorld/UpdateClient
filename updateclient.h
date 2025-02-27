@@ -6,7 +6,8 @@
 #include <QDataStream>
 #include <QQmlEngine>
 
-#include "package.h"
+// #include "package.h"
+#include "updatesocket.h"
 
 class UpdateClient : public QObject
 {
@@ -52,30 +53,32 @@ signals:
      */
     void fileListReceived();
 private:
+    void sendData(int written);
     void receiveFile();
     void clearNetworkData();
 
 private:
-    TransferData data;
-
-    bool flag;
-    int SYNFlag;
-    int DOWNFlag;
-    QString tempFileName;
-
-    int bytesAwaited= -1;
-    QTcpSocket* updateSocket;
-    QByteArray updateFile;
-    QByteArray message;
-    QDataStream in;
-    QString m_FileName;
+    QSharedPointer<UpdateSocket> socket;
     QStringList m_updateFileList;
-    bool headerReaded;
+    // TransferData data;
 
-    bool isWaitingForWholeMessage = false;
-    bool isWaitingForHeader = false;
-    int currentCommand = 0;
-    int currentState = IDLE;
+    // bool flag;
+    // int SYNFlag;
+    // int DOWNFlag;
+    // QString tempFileName;
+
+    // int bytesAwaited= -1;
+    // QTcpSocket* updateSocket;
+    // QByteArray updateFile;
+    // QByteArray message;
+    // QDataStream in;
+    // QString m_FileName;
+    // bool headerReaded;
+
+    // bool isWaitingForWholeMessage = false;
+    // bool isWaitingForHeader = false;
+    // int currentCommand = 0;
+    // int currentState = IDLE;
 };
 
 #endif // UPDATECLIENT_H

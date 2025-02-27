@@ -4,18 +4,30 @@
 #include <QtCore>
 #include <QSharedPointer>
 
+constexpr int payloadSize = 1024*64;
+constexpr qint64 magicNum = 0x004AFFB2009CFF31;
 
-struct TransferData{
-    QSharedPointer<QFile> localFile = nullptr;
-    qint64 totalBytes;
-    QString fileName;
+
+struct TransferHeader {
+    qint64 magic; ///идентификатор нашего протокола
+    qint64 command; //тип сообщения
+    qint64 messageSize; //размер сообщения
+    qint64 fileSize; //размер файла
+    //выше - стабильная, обязательная, часть сообщения,
+    //ниже - опционально. message - список фалойв, имя запрашиваемого файла, имя передаваемого файла
+    QString message;
+    //место для посылки
     QByteArray dataBlock;
-    qint64 bytesWritten;
-    qint64 bytesToWrite;
-    quint64 payloadSize;
-    int command;
-    quint64 bytesReceived;
-    quint64 fileNameSize;
+    //ниже переменные для статистики при обработке
+    qint64 bytesReadOrWritten;
+    qint64 bytesToReadOrWrite;
+};
+
+struct FileInfo
+{
+    qint64 bytesRecived;
+    qint64 awaitedSize;
+    QSharedPointer<QFile> localFile;
 };
 
 #endif // PACKAGE_H
