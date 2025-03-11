@@ -26,7 +26,7 @@ public:
      * успешным результатом должно стать получение от сервера списка доступных
      * к выгрузке файлов
      */
-    Q_INVOKABLE void requestUpdate();
+    Q_INVOKABLE void requestUpdate(TransferHeader::FileType type = TransferHeader::DevelopmentFiles);
 
     /**
      * @brief updateFileList
