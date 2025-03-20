@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 import BackEnd 1.0
 import StratifyLabs.UI 2.0
@@ -9,6 +10,11 @@ Item {
 
     anchors.fill: parent
     visible: true
+    Rectangle {
+        id: background
+        anchors.fill: parent
+        color: "darkslategray"
+    }
 
     SRow {
         id: topButtonRow
@@ -18,11 +24,13 @@ Item {
             right: parent.right
             margins: 10
         }
+        height: 60
 
         SButton {
             id: connectButton
+            span: 3
             text: qsTr("Подключиться")
-            style: "btn-secondary"
+            style: "btn-secondary lg"
             anchors {
 
                 margins: 10
@@ -32,7 +40,8 @@ Item {
         SButton {
             id: updateButton
             text: qsTr("Обновить список")
-            style: "btn-secondary"
+            style: "btn-primary lg"
+            span: 3
             anchors {
 
                 margins: 10
@@ -40,10 +49,27 @@ Item {
             enabled: false
             onClicked: update_handle.requestUpdate()
         }
-        SDropdown {
-            id: fileTypeSelector
-            enabled: false
-            onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
+        SPanel {
+            // id: bu
+            span: 4
+            style: "btn-naked lg"
+            SRow {
+                SLabel{
+                    // span: 6
+                    style: "btn-naked lg"
+                    text: "Категория файла"
+                    color: "black"
+                }
+
+                SDropdown {
+                    id: fileTypeSelector
+                    style: "lg"
+                    // span: 6
+
+                    enabled: false
+                    onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
+                }
+            }
         }
     }
     SButton {
@@ -58,30 +84,62 @@ Item {
         onClicked: updateRequester.returnButtonPressed()
     }
 
-    ListView {
-        id: updateView
-        spacing: 5
-        clip: true
+    Rectangle {
+        id: listBorder
+        width: parent.width * .6
+        radius: 10
+        color: "transparent"
+        border.width: 1
+        border.color: "lightgray"
         anchors {
             left: parent.left
-            right: parent.horizontalCenter
             bottom: returnButton.top
             top: topButtonRow.bottom
-            margins: 15
+            topMargin: 70
+            bottomMargin: 10
+            leftMargin: 20
+            rightMargin: 10
         }
-        delegate: SButton {
-            required property string modelData
-            id: delegate
-            width: 500
-            height: 60
-            style: "btn-outline-primary"
-            // color: "burlywood"
-            // border.color: "#005c9f"
-            // radius: 10
-            anchors.margins: 20
-            text: modelData
-            onClicked: update_handle.requestFile(text)
-        }
+        // Rectangle {
+        //     anchors.fill: parent
+            SLabel{
+                id: listLabel
+                style: "label-primary lg"
+                text: "Доступные файлы"
+                width: parent.width
+                anchors{
+                    top: parent.top
+                    margins: 0
+                }
+            }
+
+            ListView {
+                id: updateView
+                spacing: 15
+                clip: true
+                anchors{
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                    top: listLabel.bottom
+                    margins: 10
+                }
+
+                delegate: SButton {
+                    required property string modelData
+                    id: delegate
+                    width: updateView.width * 0.9
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 60
+                    style: "btn-outline-primary"
+                    anchors.margins: 20
+                    text: modelData
+                    clip: true
+                    onClicked: update_handle.requestFile(text)
+                }
+            }
+        // }
+
     }
 
     SColumn {
@@ -89,7 +147,7 @@ Item {
             bottom: parent.bottom
             top: topButtonRow.bottom
             right: parent.right
-            left: updateView.right
+            left: listBorder.right
         }
 
       SProgressCircle {
@@ -139,11 +197,6 @@ Item {
             fileTypeSelector.enabled = true;
             fileTypeSelector.model = update_handle.fileTypes()
         }
-        // function onFileRecievingStart(parts) {
-        //     progressCircle.stepSize = 1 / parts
-        //     progressCircle.visible = true;
-        //     // update_handle.filePartRecieved.connect(progressCircle.calculateStep())
-        // }
         function onFilePartRecieved(percentage) {
             progressCircle.visible = true;
             progressCircle.value = percentage

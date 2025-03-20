@@ -9,7 +9,7 @@ constexpr qint64 magicNum = 0x004AFFB2009CFF31;
 constexpr int headerFieldCount = 5;
 constexpr int headerSizeBytes = headerFieldCount * sizeof(qint64);
 
-const QStringList names = {"Рарзработка"
+const QStringList names = {"Разработка"
                            , "Обновление микропрограмм"
                             , "Обновление ПО"
                             , "Обновление медиафайлов"
