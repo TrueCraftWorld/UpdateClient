@@ -13,7 +13,7 @@ UpdateClient::UpdateClient( QObject *parent)
 
 }
 
-void UpdateClient::requestUpdate(TransferHeader::FileType type)
+void UpdateClient::connectToServer()
 {
     socket.reset(new UpdateSocket(0, this));
     QHostAddress updateHost(UPDATE_SERV_IP);
@@ -22,11 +22,12 @@ void UpdateClient::requestUpdate(TransferHeader::FileType type)
         m_updateFileList = list;
         emit fileListReceived();
     });
-    connect(socket.data(), &UpdateSocket::connected, this, [this, type](){
-        socket->requestFileList(type);
-    });
+    connect(socket.data(), &UpdateSocket::connected, this, &UpdateClient::requestUpdate);
+    connect(socket.data(), &UpdateSocket::connected, this, &UpdateClient::ready);
+    // connect(socket.data(), &UpdateSocket::fileRecievingStarted, this, &UpdateClient::fileRecievingStart);
+    connect(socket.data(), &UpdateSocket::filePartRecieved, this, &UpdateClient::filePartRecieved);
 
-    socket->bind(updateHost, 11111);
+    socket->bind(updateHost, 12345, QAbstractSocket::ShareAddress | QAbstractSocket::ReuseAddressHint);
     socket->connectToHost(updateHost,11111);
 }
 
@@ -37,7 +38,26 @@ void UpdateClient::registerUpdateClient()
 
 void UpdateClient::requestFile(const QString &file)
 {
+
     socket->requestFile(file);
+}
+
+void UpdateClient::changeFileType(int type)
+{
+    if (type < TransferHeader::DevelopmentFiles || type > TransferHeader::RecommendationUpdate )
+        return;
+    m_type = type;
+    requestUpdate();
+}
+
+QStringList UpdateClient::fileTypes() const
+{
+    return TransferHeader::fileTypes();
+}
+
+void UpdateClient::requestUpdate()
+{
+    socket->requestFileList(static_cast<TransferHeader::FileType>(m_type));
 }
 
 QStringList UpdateClient::updateFileList() const

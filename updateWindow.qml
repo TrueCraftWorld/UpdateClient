@@ -1,6 +1,8 @@
 import QtQuick 2.15
 
 import BackEnd 1.0
+import StratifyLabs.UI 2.0
+
 Item {
     id: updateRequester
     signal returnButtonPressed()
@@ -8,23 +10,52 @@ Item {
     anchors.fill: parent
     visible: true
 
-    ServiceButton {
-        id: updateButton
-        text: qsTr("Подключиться")
+    SRow {
+        id: topButtonRow
         anchors {
             top: parent.top
-            topMargin: 15
+            left: parent.left
+            right: parent.right
+            margins: 10
         }
-        onTapped: update_handle.requestUpdate()
+
+        SButton {
+            id: connectButton
+            text: qsTr("Подключиться")
+            style: "btn-secondary"
+            anchors {
+
+                margins: 10
+            }
+            onClicked: update_handle.connectToServer()
+        }
+        SButton {
+            id: updateButton
+            text: qsTr("Обновить список")
+            style: "btn-secondary"
+            anchors {
+
+                margins: 10
+            }
+            enabled: false
+            onClicked: update_handle.requestUpdate()
+        }
+        SDropdown {
+            id: fileTypeSelector
+            enabled: false
+            onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
+        }
     }
-    ServiceButton {
+    SButton {
         id: returnButton
+        style: "btn-secondary"
         text: qsTr("Назад")
         anchors {
             left:parent.left
             bottom: parent.bottom
+            margins: 10
         }
-        onTapped: updateRequester.returnButtonPressed()
+        onClicked: updateRequester.returnButtonPressed()
     }
 
     ListView {
@@ -32,33 +63,66 @@ Item {
         spacing: 5
         clip: true
         anchors {
-            left: returnButton.right
-            right: parent.right
-            bottom: parent.bottom
-            top: updateButton.bottom
+            left: parent.left
+            right: parent.horizontalCenter
+            bottom: returnButton.top
+            top: topButtonRow.bottom
             margins: 15
         }
-        delegate: Rectangle {
+        delegate: SButton {
             required property string modelData
+            id: delegate
             width: 500
             height: 60
-            color: "burlywood"
-            border.color: "#005c9f"
-            radius: 10
+            style: "btn-outline-primary"
+            // color: "burlywood"
+            // border.color: "#005c9f"
+            // radius: 10
             anchors.margins: 20
+            text: modelData
+            onClicked: update_handle.requestFile(text)
+        }
+    }
 
-            Text {
-                id: text
-                text: parent.modelData
-                anchors.fill: parent
-                color: "black"
-            }
-            TapHandler {
-                onTapped: {
-                    update_handle.requestFile(text.text)
+    SColumn {
+        anchors {
+            bottom: parent.bottom
+            top: topButtonRow.bottom
+            right: parent.right
+            left: updateView.right
+        }
+
+      SProgressCircle {
+        id: progressCircle;
+
+        property double stepSize;
+
+        style: "primary";
+        value: 0.0;
+        visible: false
+
+
+        SIcon {
+          anchors.centerIn: parent;
+          style: "text-h1";
+          iconString: Fa.Icon.download;
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (parent.value == 1.0) {
+                    parent.visible = false;
+                    parent.value = 0;
                 }
             }
         }
+        onValueChanged: {
+            if (value == 1.0)
+                style = "success"
+            else
+                style = "primary"
+        }
+      }
     }
 
     UpdateClient {
@@ -69,6 +133,20 @@ Item {
         target: update_handle
         function onFileListReceived() {
             updateView.model = update_handle.updateFileList()
+        }
+        function onReady() {
+            updateButton.enabled = true;
+            fileTypeSelector.enabled = true;
+            fileTypeSelector.model = update_handle.fileTypes()
+        }
+        // function onFileRecievingStart(parts) {
+        //     progressCircle.stepSize = 1 / parts
+        //     progressCircle.visible = true;
+        //     // update_handle.filePartRecieved.connect(progressCircle.calculateStep())
+        // }
+        function onFilePartRecieved(percentage) {
+            progressCircle.visible = true;
+            progressCircle.value = percentage
         }
     }
 

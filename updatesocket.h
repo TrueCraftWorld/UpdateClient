@@ -23,6 +23,8 @@ public:
 signals:
     void listRecieved(QStringList list);
     void fileRecieved(const QString& path);
+    // void fileRecievingStarted(int awaitedParts);
+    void filePartRecieved(double fileSuccesPercentage);
 
     void fileRequested(const QString&);
     void listRequested(int fileType);

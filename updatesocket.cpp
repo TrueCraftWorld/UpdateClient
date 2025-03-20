@@ -1,5 +1,6 @@
 #include "updatesocket.h"
 #include "protocolcommand.h"
+
 #include <QDir>
 
 UpdateSocket::UpdateSocket(int ID, QObject *parent)
@@ -67,7 +68,9 @@ void UpdateSocket::sendFile(const QString& path)
 
 }
 
-void UpdateSocket::sendMessageOnly(const QString &message, qint64 command, TransferHeader::FileType fileType)
+void UpdateSocket::sendMessageOnly(const QString &message,
+                                   qint64 command,
+                                   TransferHeader::FileType fileType)
 {
     clearOutput();
     outputHeader.messageSize = 0;
@@ -111,6 +114,8 @@ void UpdateSocket::sendFileList(QStringList list)
 
 void UpdateSocket::requestFile(const QString &name)
 {
+    // outputHeader.fileType = fileType;
+    clearInput();
     sendMessageOnly(name, _SELECT_FILE_);
 }
 
@@ -185,6 +190,7 @@ void UpdateSocket::readMessage()
         emit fileRequested(inputHeader.message);
         clearInput();
     }
+    break;
     case _REQUEST_LIST_:
     {
         emit listRequested(inputHeader.fileType);
@@ -211,8 +217,8 @@ void UpdateSocket::recieveFile(const QString& fileName) {
         inputFile.localFile.reset( new QFile(savePath + fileName));
         inputFile.localFile->open(QIODevice::WriteOnly);
         inputFile.bytesRecived = 0;
+        // emit fileRecievingStarted(std::max(qint64(1), inputHeader.fileSize/payloadSize));
     }
-
     recieveFile();
 
 }
@@ -230,6 +236,8 @@ void UpdateSocket::recieveFile() {
         inputFile.bytesRecived += inputHeader.dataBlock.size();
 
         inputHeader.dataBlock.clear();
+
+        emit filePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
     }
 
     while(!in.atEnd()){
@@ -240,10 +248,12 @@ void UpdateSocket::recieveFile() {
 
         inputFile.localFile->write(inputHeader.dataBlock.constData(), toFile);
         inputHeader.dataBlock.clear();
+        emit filePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
     }
 
     if(inputFile.bytesRecived == inputFile.awaitedSize){
 
+        inputFile.localFile->flush();
         inputFile.localFile->close();
         inputFile.localFile.reset(nullptr);
 
@@ -251,7 +261,7 @@ void UpdateSocket::recieveFile() {
 
         inputFile.awaitedSize = 0;
         emit fileRecieved(inputHeader.message);
-        // clearInput();
+        clearInput();
     }
 }
 

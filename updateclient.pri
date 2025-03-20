@@ -16,3 +16,7 @@ HEADERS += \
     $$PWD/updateclient.h \
     $$PWD/updatesocket.h
 
+DISTFILES += \
+    $$PWD/ServiceButton.qml \
+    $$PWD/updateWindow.qml
+

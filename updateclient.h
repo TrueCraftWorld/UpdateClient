@@ -26,7 +26,7 @@ public:
      * успешным результатом должно стать получение от сервера списка доступных
      * к выгрузке файлов
      */
-    Q_INVOKABLE void requestUpdate(TransferHeader::FileType type = TransferHeader::DevelopmentFiles);
+    Q_INVOKABLE void connectToServer();
 
     /**
      * @brief updateFileList
@@ -41,6 +41,15 @@ public:
 
     Q_INVOKABLE void requestFile(const QString& file);
 
+    Q_INVOKABLE void changeFileType(int type);
+
+    Q_INVOKABLE QStringList fileTypes() const;
+
+    /**
+     * @brief запрос обновления списка файлов
+     */
+    Q_INVOKABLE void requestUpdate();
+
 signals:
     /**
      * @brief сигнал об успешной загрузке файла
@@ -52,33 +61,22 @@ signals:
      * @brief сигнал об успешном получении списка файлов
      */
     void fileListReceived();
+
+    /**
+     * @brief сигнал о готовности к работе, успешно подключились к серверу
+     */
+    void ready();
+
+    // void fileRecievingStart(int partsAwaited);
+    void filePartRecieved(double percentage);
 private:
     void sendData(int written);
-    void receiveFile();
     void clearNetworkData();
 
 private:
     QSharedPointer<UpdateSocket> socket;
     QStringList m_updateFileList;
-    // TransferData data;
-
-    // bool flag;
-    // int SYNFlag;
-    // int DOWNFlag;
-    // QString tempFileName;
-
-    // int bytesAwaited= -1;
-    // QTcpSocket* updateSocket;
-    // QByteArray updateFile;
-    // QByteArray message;
-    // QDataStream in;
-    // QString m_FileName;
-    // bool headerReaded;
-
-    // bool isWaitingForWholeMessage = false;
-    // bool isWaitingForHeader = false;
-    // int currentCommand = 0;
-    // int currentState = IDLE;
+    int m_type = 0;
 };
 
 #endif // UPDATECLIENT_H
