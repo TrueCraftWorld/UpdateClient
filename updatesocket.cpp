@@ -65,7 +65,6 @@ void UpdateSocket::sendFile(const QString& path)
     connect(this, &UpdateSocket::bytesWritten, this, &UpdateSocket::sendFilePart);
     write(outputHeader.dataBlock.constData(), outputHeader.bytesToReadOrWrite);
     waitForBytesWritten();
-
 }
 
 void UpdateSocket::sendMessageOnly(const QString &message,
@@ -157,6 +156,7 @@ void UpdateSocket::readMessage()
 
         inputHeader.bytesReadOrWritten += headerSizeBytes;
     }
+
     inputHeader.bytesToReadOrWrite = inputHeader.messageSize
                                      + inputHeader.fileSize
                                      + headerSizeBytes;
@@ -181,19 +181,19 @@ void UpdateSocket::readMessage()
     break;
     case _TRANSFER_LIST_ :
     {
-        emit listRecieved(inputHeader.message.split('%'));
+        emit signalListRecieved(inputHeader.message.split('%'));
         clearInput();
     }
     break;
     case _SELECT_FILE_:
     {
-        emit fileRequested(inputHeader.message);
+        emit signalFileRequested(inputHeader.message);
         clearInput();
     }
     break;
     case _REQUEST_LIST_:
     {
-        emit listRequested(inputHeader.fileType);
+        emit signalListRequested(inputHeader.fileType);
         clearInput();
     }
     break;
@@ -205,10 +205,13 @@ void UpdateSocket::readMessage()
 
 
 
-void UpdateSocket::recieveFile(const QString& fileName) {
+void UpdateSocket::recieveFile(const QString& fileName,
+                               const QString& destPath) {
 
     if (inputFile.localFile.isNull()) {
-        QString savePath = "/home/kikorik/garbage/";
+        QString savePath = destPath;
+        if (savePath.rightRef(1) != "/")
+            savePath += "/";
 
         QDir dir;
 
@@ -217,7 +220,6 @@ void UpdateSocket::recieveFile(const QString& fileName) {
         inputFile.localFile.reset( new QFile(savePath + fileName));
         inputFile.localFile->open(QIODevice::WriteOnly);
         inputFile.bytesRecived = 0;
-        // emit fileRecievingStarted(std::max(qint64(1), inputHeader.fileSize/payloadSize));
     }
     recieveFile();
 
@@ -237,7 +239,7 @@ void UpdateSocket::recieveFile() {
 
         inputHeader.dataBlock.clear();
 
-        emit filePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
+        emit signalFilePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
     }
 
     while(!in.atEnd()){
@@ -248,7 +250,7 @@ void UpdateSocket::recieveFile() {
 
         inputFile.localFile->write(inputHeader.dataBlock.constData(), toFile);
         inputHeader.dataBlock.clear();
-        emit filePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
+        emit signalFilePartRecieved((100.0 * inputFile.bytesRecived)/(100.0 * inputFile.awaitedSize));
     }
 
     if(inputFile.bytesRecived == inputFile.awaitedSize){
@@ -260,7 +262,7 @@ void UpdateSocket::recieveFile() {
         inputFile.bytesRecived = 0;
 
         inputFile.awaitedSize = 0;
-        emit fileRecieved(inputHeader.message);
+        emit signalFileRecieved(inputHeader.message);
         clearInput();
     }
 }

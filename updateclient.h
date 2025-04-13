@@ -7,6 +7,7 @@
 #include <QQmlEngine>
 
 // #include "package.h"
+#include "fileversioncheck.h"
 #include "updatesocket.h"
 
 class UpdateClient : public QObject
@@ -55,12 +56,12 @@ signals:
      * @brief сигнал об успешной загрузке файла
      * @param полный путь к файлу вместе с именем
      */
-    void fileReceived(const QString& path);
+    void signalFileReceived(const QString& path);
 
     /**
      * @brief сигнал об успешном получении списка файлов
      */
-    void fileListReceived();
+    void signlaFileListReceived();
 
     /**
      * @brief сигнал о готовности к работе, успешно подключились к серверу
@@ -68,15 +69,22 @@ signals:
     void ready();
 
     // void fileRecievingStart(int partsAwaited);
-    void filePartRecieved(double percentage);
+    void signalFilePartRecieved(double percentage);
+
+    void signalUpdateFound(const FileVersionInfo&);
+private slots:
+    void slotCheckUpdate(const QString&);
+
 private:
     void sendData(int written);
     void clearNetworkData();
+
 
 private:
     QSharedPointer<UpdateSocket> socket;
     QStringList m_updateFileList;
     int m_type = 0;
+    QList<FileVersionInfo> m_binaries;
 };
 
 #endif // UPDATECLIENT_H

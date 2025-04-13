@@ -21,13 +21,12 @@ public:
     void sendFile(const QString &path);
 
 signals:
-    void listRecieved(QStringList list);
-    void fileRecieved(const QString& path);
-    // void fileRecievingStarted(int awaitedParts);
-    void filePartRecieved(double fileSuccesPercentage);
+    void signalListRecieved(QStringList list);
+    void signalFileRecieved(const QString& path);
+    void signalFilePartRecieved(double fileSuccesPercentage);
 
-    void fileRequested(const QString&);
-    void listRequested(int fileType);
+    void signalFileRequested(const QString&);
+    void signalListRequested(int fileType);
 
 private slots:
     /**
@@ -40,7 +39,7 @@ private slots:
                          qint64 command,
                          TransferHeader::FileType fileType = TransferHeader::DevelopmentFiles);
 
-    void recieveFile(const QString &fileName);
+    void recieveFile(const QString &fileName, const QString &destPath="/home/kikorik/Downloads/");
 
     void sendFilePart();
 
