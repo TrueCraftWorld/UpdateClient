@@ -6,7 +6,7 @@
 #include <QQmlContext>
 #include <QDebug>
 #include <QFileInfo>
-#include "qguiapplication.h"
+
 #include "updateConfig.h"
 
 UpdateClient::UpdateClient( QObject *parent)
@@ -69,7 +69,7 @@ void UpdateClient::slotCheckUpdate(const QString &name)
     if (!info.isValid)
         return;
 
-    for (const auto &item : m_binaries) {
+    for (const auto &item : qAsConst(m_binaries)) {
         if (item.filename != info.filename)
             continue;
         if (item.major < info.major)
