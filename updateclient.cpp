@@ -65,21 +65,22 @@ void UpdateClient::requestUpdate()
 
 void UpdateClient::slotCheckUpdate(const QString &name)
 {
-    FileVersionInfo info(name);
-    if (!info.isValid)
+    FileVersionInfo info;
+    info.init(name);
+    if (!info.valid())
         return;
 
     for (const auto &item : qAsConst(m_binaries)) {
-        if (item.filename != info.filename)
+        if (item.filename() != info.filename())
             continue;
-        if (item.major < info.major)
+        if (item.major() < info.major())
             emit signalUpdateFound(info);
-        else if (item.major == info.major
-                 && item.minor < info.minor)
+        else if (item.major() == info.major()
+                 && item.minor() < info.minor())
             emit signalUpdateFound(info);
-        else if (item.major == info.major
-                 && item.minor == info.minor
-                 && item.fix < info.fix)
+        else if (item.major() == info.major()
+                 && item.minor() == info.minor()
+                 && item.fix() < info.fix())
             emit signalUpdateFound(info);
     }
 

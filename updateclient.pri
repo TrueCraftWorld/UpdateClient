@@ -22,5 +22,6 @@ HEADERS += \
     $$PWD/updatesocket.h
 
 DISTFILES += \
+    $$PWD/UpdateDialog.qml \
     $$PWD/updateWindow.qml
 

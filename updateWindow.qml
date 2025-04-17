@@ -201,6 +201,9 @@ Item {
             progressCircle.visible = true;
             progressCircle.value = percentage
         }
+        function onSignalUpdateFound() {
+
+        }
     }
 
 }

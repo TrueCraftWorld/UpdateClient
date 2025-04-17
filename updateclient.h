@@ -72,6 +72,8 @@ signals:
     void signalFilePartRecieved(double percentage);
 
     void signalUpdateFound(const FileVersionInfo&);
+
+    // void signalUpdateDial
 private slots:
     void slotCheckUpdate(const QString&);
 
