@@ -9,6 +9,13 @@
 
 #include "updateConfig.h"
 
+/**
+ * @brief UpdateClient::UpdateClient
+ * @param parent
+ * @todo прописать парсинг директории извесных бинарей на наличие инишника и нужной файловой структуры
+ * если не нашли создать. если уже есть файлы - просписать их как нулевую версию в инишник
+ * заполнить по инишнику инфу об известных бинарях
+ */
 UpdateClient::UpdateClient( QObject *parent)
     : QObject(parent)
 {
@@ -84,6 +91,11 @@ void UpdateClient::slotCheckUpdate(const QString &name)
             emit signalUpdateFound(info);
     }
 
+}
+
+void UpdateClient::setBinaries(const QList<FileVersionInfo> &newBinaries)
+{
+    m_binaries = newBinaries;
 }
 
 QStringList UpdateClient::updateFileList() const

@@ -51,6 +51,8 @@ public:
      */
     Q_INVOKABLE void requestUpdate();
 
+    void setBinaries(const QList<FileVersionInfo> &newBinaries);
+
 signals:
     /**
      * @brief сигнал об успешной загрузке файла
