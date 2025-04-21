@@ -1,5 +1,7 @@
 #include "fileversioncheck.h"
 
+#include <QSettings>
+
 static QRegularExpression regex("^(.*?)_(\\d+)-(\\d+)-(\\d+)$");
 
 // FileVersionInfo::FileVersionInfo()
@@ -73,12 +75,52 @@ int FileVersionInfo::valid() const
     return m_valid;
 }
 
+void FileVersionInfo::setValid(int newValid)
+{
+    m_valid = newValid;
+}
+
 QList<FileVersionInfo> FileVersionInfo::readFromIni(const QString &iniPath)
 {
+    QList<FileVersionInfo> files;
+    QSettings settings(iniPath, QSettings::IniFormat);
 
+    // Get all section names (which are filenames without suffix)
+    QStringList sections = settings.childGroups();
+
+    // foreach (const QString& section, sections) {
+    for (const QString& section : qAsConst(sections)) {
+
+        settings.beginGroup(section);
+
+        FileVersionInfo file;
+        file.setFilename(section);
+        file.setMajor(settings.value("major").toUInt());
+        file.setMinor(settings.value("minor").toUInt());
+        file.setFix(settings.value("fix").toUInt());
+        file.setValid(settings.value("valid").toBool());
+
+        files.append(file);
+        settings.endGroup();
+    }
+
+    return files;
 }
 
 void FileVersionInfo::writeToIni(const QList<FileVersionInfo> &files, const QString &iniPath)
 {
+    QSettings settings(iniPath, QSettings::IniFormat);
 
+    for (const FileVersionInfo& file :files) {
+        // Use filename (without suffix) as section name
+        settings.beginGroup(file.filename());
+
+        // Write file information
+        settings.setValue("major", file.major());
+        settings.setValue("minor", file.minor());
+        settings.setValue("fix", file.fix());
+        settings.setValue("valid", file.valid());
+
+        settings.endGroup();
+    }
 }

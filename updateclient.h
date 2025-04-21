@@ -82,6 +82,7 @@ private slots:
 private:
     void sendData(int written);
     void clearNetworkData();
+    void initFileTracker();
 
 
 private:
