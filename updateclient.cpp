@@ -6,6 +6,8 @@
 #include <QQmlContext>
 #include <QDebug>
 #include <QFileInfo>
+#include <QDir>
+#include <QSettings>
 
 #include "updateConfig.h"
 
@@ -19,7 +21,7 @@
 UpdateClient::UpdateClient( QObject *parent)
     : QObject(parent)
 {
-
+    initFileTracker();
 }
 
 void UpdateClient::connectToServer()
@@ -91,6 +93,33 @@ void UpdateClient::slotCheckUpdate(const QString &name)
             emit signalUpdateFound(info);
     }
 
+}
+
+void UpdateClient::initFileTracker()
+{
+// BINARIES_PATH
+    QDir workFiles(BINARIES_PATH);
+    QString mainStr(BINARIES_PATH);
+    if (!workFiles.exists()) {
+        workFiles.mkpath(QString(BINARIES_PATH));
+        workFiles.mkpath(mainStr + QString("Firmware"));
+        workFiles.mkpath(mainStr + QString("Media"));
+        workFiles.mkpath(mainStr + QString("Recommendation"));
+        workFiles.mkpath(mainStr + QString("Settings"));
+        workFiles.mkpath(mainStr + QString("Software"));
+        return;
+    }
+
+    QFileInfo iniFile(mainStr + QString("file-versions.ini"));
+
+    if (!iniFile.exists()) {
+        QFile file(iniFile.absoluteFilePath());
+        file.open(QIODevice::WriteOnly);
+        // workFiles.fil
+        ///проверить все существующие файлы и прописать их в инишник
+    }
+
+    m_binaries = FileVersionInfo::readFromIni(iniFile.absoluteFilePath());
 }
 
 void UpdateClient::setBinaries(const QList<FileVersionInfo> &newBinaries)

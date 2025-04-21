@@ -72,3 +72,13 @@ int FileVersionInfo::valid() const
 {
     return m_valid;
 }
+
+QList<FileVersionInfo> FileVersionInfo::readFromIni(const QString &iniPath)
+{
+
+}
+
+void FileVersionInfo::writeToIni(const QList<FileVersionInfo> &files, const QString &iniPath)
+{
+
+}
