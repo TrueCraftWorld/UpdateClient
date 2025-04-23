@@ -100,26 +100,53 @@ void UpdateClient::initFileTracker()
 // BINARIES_PATH
     QDir workFiles(BINARIES_PATH);
     QString mainStr(BINARIES_PATH);
-    if (!workFiles.exists()) {
-        workFiles.mkpath(QString(BINARIES_PATH));
-        workFiles.mkpath(mainStr + QString("Firmware"));
-        workFiles.mkpath(mainStr + QString("Media"));
-        workFiles.mkpath(mainStr + QString("Recommendation"));
-        workFiles.mkpath(mainStr + QString("Settings"));
-        workFiles.mkpath(mainStr + QString("Software"));
-        return;
-    }
+    QStringList paths;
+    QFileInfoList filesFound;
+    paths.append(mainStr);
+    paths.append(mainStr + QString("Firmware"));
+    paths.append(mainStr + QString("Media"));
+    paths.append(mainStr + QString("Recommendation"));
+    paths.append(mainStr + QString("Settings"));
+    paths.append(mainStr + QString("Software"));
 
+
+    for (const QString& item : paths) {
+        QDir dir(item);
+        if (!dir.exists()) {
+            dir.mkpath(item);
+            continue;
+        }
+        filesFound.append(dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks));
+    }
     QFileInfo iniFile(mainStr + QString("file-versions.ini"));
 
-    if (!iniFile.exists()) {
-        QFile file(iniFile.absoluteFilePath());
-        file.open(QIODevice::WriteOnly);
-        // workFiles.fil
-        ///проверить все существующие файлы и прописать их в инишник
+    QList<FileVersionInfo> knownFiles;
+    QList<FileVersionInfo> unknownFiles;
+
+    if (iniFile.exists()) {
+        knownFiles = FileVersionInfo::readFromIni(iniFile.absoluteFilePath());
+        auto iter = filesFound.begin();
+        while (iter != filesFound.end()) {
+            for (const auto& item : qAsConst(knownFiles)) {
+                if (item.filename() == iter->baseName()) {
+                    iter = filesFound.erase(iter);
+                    continue;
+                }
+            }
+            FileVersionInfo newFile;
+            newFile.setFilename(iter->baseName());
+            newFile.setMajor(0);
+            newFile.setMinor(0);
+            newFile.setFix(0);
+            newFile.setValid(true);
+            unknownFiles.append(newFile);
+            ++iter;
+        }
     }
 
-    m_binaries = FileVersionInfo::readFromIni(iniFile.absoluteFilePath());
+    FileVersionInfo::writeToIni(unknownFiles, iniFile.absoluteFilePath());
+
+    m_binaries = knownFiles + unknownFiles;
 }
 
 void UpdateClient::setBinaries(const QList<FileVersionInfo> &newBinaries)
