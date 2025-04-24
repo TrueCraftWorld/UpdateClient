@@ -1,4 +1,4 @@
-#include "updateinternals.h"
+#include "InternalUpdater.h"
 
 #include <QGuiApplication>
 #include <QFile>
@@ -44,7 +44,7 @@ void updateNonExecFiles(const QFileInfo& file, const QString& targetPath) {
 
 }
 
-UpdateInternals::UpdateInternals(Types type)
+InternalUpdater::InternalUpdater(Types type)
     : m_type(type)
 {
     switch (type) {

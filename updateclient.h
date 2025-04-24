@@ -6,8 +6,10 @@
 #include <QDataStream>
 #include <QQmlEngine>
 
+#include <optional>
+
 // #include "package.h"
-#include "fileversioncheck.h"
+#include "FileVersionInfo.h"
 #include "updatesocket.h"
 
 class UpdateClient : public QObject
@@ -51,7 +53,6 @@ public:
      */
     Q_INVOKABLE void requestUpdate();
 
-    void setBinaries(const QList<FileVersionInfo> &newBinaries);
 
 signals:
     /**
@@ -76,20 +77,26 @@ signals:
     void signalUpdateFound(const FileVersionInfo&);
 
     // void signalUpdateDial
+public slots:
+    void slotDoUpdate(int type);
+    void slotRejectUpdate();
+
 private slots:
     void slotCheckUpdate(const QString&);
 
 private:
+    void setBinaries(const QList<FileVersionInfo> &newBinaries);
     void sendData(int written);
     void clearNetworkData();
     void initFileTracker();
-
+    void prepareUpdate(const FileVersionInfo& file);
 
 private:
     QSharedPointer<UpdateSocket> socket;
     QStringList m_updateFileList;
     int m_type = 0;
     QList<FileVersionInfo> m_binaries;
+    std::optional<FileVersionInfo> pendingUpdate;
 };
 
 #endif // UPDATECLIENT_H

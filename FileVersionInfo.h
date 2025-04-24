@@ -1,5 +1,5 @@
-#ifndef FILEVERSIONCHECK_H
-#define FILEVERSIONCHECK_H
+#ifndef FILEVERSIONINFO_H
+#define FILEVERSIONINFO_H
 
 #include <QString>
 #include <QRegularExpression>
@@ -45,4 +45,4 @@ private:
 
 Q_DECLARE_METATYPE(FileVersionInfo)
 
-#endif // FILEVERSIONCHECK_H
+#endif // FILEVERSIONINFO_H

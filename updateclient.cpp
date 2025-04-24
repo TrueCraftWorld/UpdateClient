@@ -1,5 +1,6 @@
 #include "updateclient.h"
-#include "fileversioncheck.h"
+#include "FileVersionInfo.h"
+#include "InternalUpdater.h"
 
 #include <QFile>
 #include <QHostAddress>
@@ -72,6 +73,19 @@ void UpdateClient::requestUpdate()
     socket->requestFileList(static_cast<TransferHeader::FileType>(m_type));
 }
 
+void UpdateClient::slotDoUpdate(int type)
+{
+    InternalUpdater upd(static_cast<InternalUpdater::Types>(type));
+    if (pendingUpdate.has_value()) {
+        upd.executeUpdate(pendingUpdate.value().filename(), "/home/kikorik/upd.txt");
+    }
+}
+
+void UpdateClient::slotRejectUpdate()
+{
+    pendingUpdate.reset();
+}
+
 void UpdateClient::slotCheckUpdate(const QString &name)
 {
     FileVersionInfo info;
@@ -83,14 +97,14 @@ void UpdateClient::slotCheckUpdate(const QString &name)
         if (item.filename() != info.filename())
             continue;
         if (item.major() < info.major())
-            emit signalUpdateFound(info);
+            prepareUpdate(info);
         else if (item.major() == info.major()
                  && item.minor() < info.minor())
-            emit signalUpdateFound(info);
+            prepareUpdate(info);
         else if (item.major() == info.major()
                  && item.minor() == info.minor()
                  && item.fix() < info.fix())
-            emit signalUpdateFound(info);
+            prepareUpdate(info);
     }
 
 }
@@ -147,6 +161,12 @@ void UpdateClient::initFileTracker()
     FileVersionInfo::writeToIni(unknownFiles, iniFile.absoluteFilePath());
 
     m_binaries = knownFiles + unknownFiles;
+}
+
+void UpdateClient::prepareUpdate(const FileVersionInfo& upd)
+{
+    pendingUpdate.emplace(upd);
+    emit signalUpdateFound(upd);
 }
 
 void UpdateClient::setBinaries(const QList<FileVersionInfo> &newBinaries)

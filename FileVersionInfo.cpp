@@ -1,21 +1,9 @@
-#include "fileversioncheck.h"
+#include "FileVersionInfo.h"
 
 #include <QSettings>
 
 static QRegularExpression regex("^(.*?)_(\\d+)-(\\d+)-(\\d+)$");
 
-// FileVersionInfo::FileVersionInfo()
-// {
-    // QRegularExpressionMatch match = regex.match(input);
-
-    // if (match.hasMatch()) {
-    //     m_filename = match.captured(1);
-    //     major = match.captured(2).toInt();
-    //     minor = match.captured(3).toInt();
-    //     fix = match.captured(4).toInt();
-    //     isValid = true;
-    // }
-// }
 
 void FileVersionInfo::init(const QString &input)
 {
@@ -88,7 +76,6 @@ QList<FileVersionInfo> FileVersionInfo::readFromIni(const QString &iniPath)
     // Get all section names (which are filenames without suffix)
     QStringList sections = settings.childGroups();
 
-    // foreach (const QString& section, sections) {
     for (const QString& section : qAsConst(sections)) {
 
         settings.beginGroup(section);

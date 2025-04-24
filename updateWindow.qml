@@ -185,11 +185,14 @@ Item {
 
     UpdateClient {
         id: update_handle
-
+    }
+    UpdateDialog {
+        id: bla
+        visible: false
     }
     Connections {
         target: update_handle
-        function onFileListReceived() {
+        function onSignlaFileListReceived() {
             updateView.model = update_handle.updateFileList()
         }
         function onReady() {
@@ -197,13 +200,17 @@ Item {
             fileTypeSelector.enabled = true;
             fileTypeSelector.model = update_handle.fileTypes()
         }
-        function onFilePartRecieved(percentage) {
+        function onSignalFilePartRecieved(percentage) {
             progressCircle.visible = true;
             progressCircle.value = percentage
         }
-        function onSignalUpdateFound() {
-
+        function onSignalUpdateFound(fileInfo) {
+            bla.fileName = fileInfo.filename()
+            bla.major = fileInfo.major()
+            bla.minor = fileInfo.minor()
+            bla.fix = fileInfo.fix()
+            bla.visible = true
+            bla.open()
         }
     }
-
 }
