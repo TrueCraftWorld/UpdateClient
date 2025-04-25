@@ -3,19 +3,20 @@ import QtQuick.Controls 2.15
 
 import StratifyLabs.UI 2.0
 
-Item {
+Dialog {
     id: blaBla
     property string fileName
     property int major
     property int minor
     property int fix
 
-    Dialog {
+    // Dialog {
+    anchors.centerIn: root
 
     contentItem:   SPanel {
         span: 4;
         style: "panel-primary";
-        heading: "Primary";
+        heading: "Обнаружен файл";
 
         SText {
           text: "Обнаружен файл: " + blaBla.fileName
@@ -25,5 +26,5 @@ Item {
 
     }
 
-}
+// }
 }

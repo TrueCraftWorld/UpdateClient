@@ -205,12 +205,14 @@ Item {
             progressCircle.value = percentage
         }
         function onSignalUpdateFound(fileInfo) {
-            bla.fileName = fileInfo.filename()
-            bla.major = fileInfo.major()
-            bla.minor = fileInfo.minor()
-            bla.fix = fileInfo.fix()
+            bla.fileName = fileInfo.filename
+            bla.major = fileInfo.major
+            bla.minor = fileInfo.minor
+            bla.fix = fileInfo.fix
             bla.visible = true
-            bla.open()
+            bla.width = updateRequester * .7
+            bla.height = updateRequester * .7
+            // bla.open()
         }
     }
 }

@@ -1,13 +1,15 @@
 #include "FileVersionInfo.h"
 
 #include <QSettings>
+#include <QFileInfo>
 
 static QRegularExpression regex("^(.*?)_(\\d+)-(\\d+)-(\\d+)$");
 
 
 void FileVersionInfo::init(const QString &input)
 {
-    QRegularExpressionMatch match = regex.match(input);
+    QFileInfo info(input);
+    QRegularExpressionMatch match = regex.match(info.baseName());
 
     if (match.hasMatch()) {
         m_filename = match.captured(1);

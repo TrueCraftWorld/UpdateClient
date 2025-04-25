@@ -92,21 +92,28 @@ void UpdateClient::slotCheckUpdate(const QString &name)
     info.init(name);
     if (!info.valid())
         return;
-
+    int count = 0;
     for (const auto &item : qAsConst(m_binaries)) {
-        if (item.filename() != info.filename())
+        if (item.filename() != info.filename()) {
+            ++count;
             continue;
-        if (item.major() < info.major())
+        }
+        if (item.major() < info.major()) {
             prepareUpdate(info);
-        else if (item.major() == info.major()
-                 && item.minor() < info.minor())
+            return;
+        } else if (item.major() == info.major()
+                   && item.minor() < info.minor()) {
             prepareUpdate(info);
-        else if (item.major() == info.major()
+            return;
+        } else if (item.major() == info.major()
                  && item.minor() == info.minor()
-                 && item.fix() < info.fix())
+                   && item.fix() < info.fix()) {
             prepareUpdate(info);
+            return;
+        }
     }
-
+    if (count == m_binaries.size())
+        prepareUpdate(info);
 }
 
 void UpdateClient::initFileTracker()
