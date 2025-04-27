@@ -100,46 +100,42 @@ Item {
             leftMargin: 20
             rightMargin: 10
         }
-        // Rectangle {
-        //     anchors.fill: parent
-            SLabel{
-                id: listLabel
-                style: "label-primary lg"
-                text: "Доступные файлы"
-                width: parent.width
-                anchors{
-                    top: parent.top
-                    margins: 0
-                }
+        SLabel{
+            id: listLabel
+            style: "label-primary lg"
+            text: "Доступные файлы"
+            width: parent.width
+            anchors{
+                top: parent.top
+                margins: 0
+            }
+        }
+
+        ListView {
+            id: updateView
+            spacing: 15
+            clip: true
+            anchors{
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+                top: listLabel.bottom
+                margins: 10
             }
 
-            ListView {
-                id: updateView
-                spacing: 15
+            delegate: SButton {
+                required property string modelData
+                id: delegate
+                width: updateView.width * 0.9
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 60
+                style: "btn-outline-primary"
+                anchors.margins: 20
+                text: modelData
                 clip: true
-                anchors{
-                    left: parent.left
-                    right: parent.right
-                    bottom: parent.bottom
-                    top: listLabel.bottom
-                    margins: 10
-                }
-
-                delegate: SButton {
-                    required property string modelData
-                    id: delegate
-                    width: updateView.width * 0.9
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 60
-                    style: "btn-outline-primary"
-                    anchors.margins: 20
-                    text: modelData
-                    clip: true
-                    onClicked: update_handle.requestFile(text)
-                }
+                onClicked: update_handle.requestFile(text)
             }
-        // }
-
+        }
     }
 
     SColumn {
@@ -209,10 +205,20 @@ Item {
             bla.major = fileInfo.major
             bla.minor = fileInfo.minor
             bla.fix = fileInfo.fix
-            bla.visible = true
-            bla.width = updateRequester * .7
-            bla.height = updateRequester * .7
-            // bla.open()
+            // bla.visible = true
+            // bla.Center = progressCircle.Center
+            bla.open()
+            bla.x = 200
+            bla.y = 200
+        }
+    }
+    Connections {
+        target: bla
+        function onAccepted() {
+            update_handle.slotDoUpdate()
+        }
+        function onRejected() {
+            update_handle.slotRejectUpdate()
         }
     }
 }

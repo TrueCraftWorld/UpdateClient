@@ -262,7 +262,7 @@ void UpdateSocket::recieveFile() {
         inputFile.bytesRecived = 0;
 
         inputFile.awaitedSize = 0;
-        emit signalFileRecieved(inputHeader.message);
+        emit signalFileRecieved(inputHeader.message, (inputHeader.fileType));
         clearInput();
     }
 }

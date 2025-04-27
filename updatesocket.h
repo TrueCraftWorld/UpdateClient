@@ -7,6 +7,7 @@
 #include <QDataStream>
 
 #include "package.h"
+#include "updateConfig.h"
 
 class UpdateSocket : public QTcpSocket
 {
@@ -22,7 +23,7 @@ public:
 
 signals:
     void signalListRecieved(QStringList list);
-    void signalFileRecieved(const QString& path);
+    void signalFileRecieved(const QString& path, int fileType);
     void signalFilePartRecieved(double fileSuccesPercentage);
 
     void signalFileRequested(const QString&);
@@ -39,7 +40,7 @@ private slots:
                          qint64 command,
                          TransferHeader::FileType fileType = TransferHeader::DevelopmentFiles);
 
-    void recieveFile(const QString &fileName, const QString &destPath="/home/kikorik/Downloads/");
+    void recieveFile(const QString &fileName, const QString &destPath=DOWNLOAD_PATH);
 
     void sendFilePart();
 

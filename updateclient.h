@@ -78,11 +78,11 @@ signals:
 
     // void signalUpdateDial
 public slots:
-    void slotDoUpdate(int type);
+    void slotDoUpdate();
     void slotRejectUpdate();
 
 private slots:
-    void slotCheckUpdate(const QString&);
+    void slotCheckUpdate(const QString&, int fileType);
 
 private:
     void setBinaries(const QList<FileVersionInfo> &newBinaries);

@@ -33,12 +33,16 @@ public:
     static QList<FileVersionInfo> readFromIni(const QString& iniPath);
     static void writeToIni(const QList<FileVersionInfo>& files, const QString& iniPath);
 
+    int fileType() const;
+    void setFileType(int newFileType);
+
 private:
     QString m_filename;
     int m_major;
     int m_minor;
     int m_fix;
     int m_valid;
+    int m_fileType;
 };
 
 

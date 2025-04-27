@@ -73,11 +73,22 @@ void UpdateClient::requestUpdate()
     socket->requestFileList(static_cast<TransferHeader::FileType>(m_type));
 }
 
-void UpdateClient::slotDoUpdate(int type)
+void UpdateClient::slotDoUpdate()
 {
-    InternalUpdater upd(static_cast<InternalUpdater::Types>(type));
     if (pendingUpdate.has_value()) {
-        upd.executeUpdate(pendingUpdate.value().filename(), "/home/kikorik/upd.txt");
+        InternalUpdater upd(static_cast<InternalUpdater::Types>(pendingUpdate->fileType()));
+        QDir dir(DOWNLOAD_PATH);
+        QStringList filters;
+        filters << ("*" +pendingUpdate->filename() + "*");
+        QFileInfoList list = dir.entryInfoList(filters,
+                                               QDir::Files | QDir::NoDotAndDotDot,
+                                               QDir::Time);
+        if (list.size())
+            upd.executeUpdate(list.at(0).absoluteFilePath(), QString(BINARIES_PATH)
+                                                                 + UpdateSubFolds.at(pendingUpdate->fileType())
+                                                                 + pendingUpdate->filename()
+                                                                 + "."
+                                                                 + list.at(0).suffix());
     }
 }
 
@@ -86,13 +97,14 @@ void UpdateClient::slotRejectUpdate()
     pendingUpdate.reset();
 }
 
-void UpdateClient::slotCheckUpdate(const QString &name)
+void UpdateClient::slotCheckUpdate(const QString &name, int /*fileType*/)
 {
     FileVersionInfo info;
     info.init(name);
     if (!info.valid())
         return;
     int count = 0;
+    info.setFileType(m_type);
     for (const auto &item : qAsConst(m_binaries)) {
         if (item.filename() != info.filename()) {
             ++count;

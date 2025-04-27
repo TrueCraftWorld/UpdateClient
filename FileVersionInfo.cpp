@@ -113,3 +113,13 @@ void FileVersionInfo::writeToIni(const QList<FileVersionInfo> &files, const QStr
         settings.endGroup();
     }
 }
+
+int FileVersionInfo::fileType() const
+{
+    return m_fileType;
+}
+
+void FileVersionInfo::setFileType(int newFileType)
+{
+    m_fileType = newFileType;
+}

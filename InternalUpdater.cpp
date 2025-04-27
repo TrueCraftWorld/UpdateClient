@@ -48,11 +48,12 @@ InternalUpdater::InternalUpdater(Types type)
     : m_type(type)
 {
     switch (type) {
-    case SELF_UPDATE:
+    case SoftwareUpdate:
         registerUpdateHandler(updateApp);
         break;
-    case MEDIA_UPDATE:
-    case CONFIG_UPDATE:
+    case MediaUpdate:
+    case RecommendationUpdate:
+    case SettingsUpdate:
         registerUpdateHandler(updateNonExecFiles);
         break;
     default:
