@@ -11,8 +11,8 @@ void updateApp(const QFileInfo& file, const QString& targetPath) {
     QFileInfo target(targetPath);
     //переименовываем старый файл во что-то (авось обновление ревёртить надо а он тут как тут)
     if (target.exists() && target.isFile()) {
-        QFile file(target.absoluteFilePath());
-        file.rename(target.fileName() + ".old");
+        QFile oldfile(target.absoluteFilePath());
+        oldfile.rename(target.fileName() + ".old");
     }
     QFile newFile(file.absoluteFilePath());
     newFile.copy(targetPath);
@@ -34,8 +34,8 @@ void updateNonExecFiles(const QFileInfo& file, const QString& targetPath) {
     QFileInfo target(targetPath);
     //старый файл в корзину - это в любом случае какой-то медиаконтент
     if (target.exists() && target.isFile()) {
-        QFile file(target.absoluteFilePath());
-        file.moveToTrash();
+        QFile oldfile(target.absoluteFilePath());
+        oldfile.moveToTrash();
     }
     QFile newFile(file.absoluteFilePath());
     newFile.copy(targetPath);

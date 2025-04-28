@@ -43,7 +43,6 @@ Item {
             style: "btn-primary lg"
             span: 3
             anchors {
-
                 margins: 10
             }
             enabled: false
@@ -54,7 +53,7 @@ Item {
             span: 4
             style: "btn-naked lg"
             SRow {
-                SLabel{
+                SLabel {
                     // span: 6
                     style: "btn-naked lg"
                     text: "Категория файла"
@@ -65,7 +64,6 @@ Item {
                     id: fileTypeSelector
                     style: "lg"
                     // span: 6
-
                     enabled: false
                     onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
                 }
@@ -100,12 +98,12 @@ Item {
             leftMargin: 20
             rightMargin: 10
         }
-        SLabel{
+        SLabel {
             id: listLabel
             style: "label-primary lg"
             text: "Доступные файлы"
             width: parent.width
-            anchors{
+            anchors {
                 top: parent.top
                 margins: 0
             }
@@ -115,7 +113,7 @@ Item {
             id: updateView
             spacing: 15
             clip: true
-            anchors{
+            anchors {
                 left: parent.left
                 right: parent.right
                 bottom: parent.bottom
@@ -146,46 +144,50 @@ Item {
             left: listBorder.right
         }
 
-      SProgressCircle {
-        id: progressCircle;
+        SProgressCircle {
 
-        property double stepSize;
+            id: progressCircle;
 
-        style: "primary";
-        value: 0.0;
-        visible: false
+            property double stepSize;
 
+            style: "primary";
+            value: 0.0;
+            visible: false
 
-        SIcon {
-          anchors.centerIn: parent;
-          style: "text-h1";
-          iconString: Fa.Icon.download;
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                if (parent.value == 1.0) {
-                    parent.visible = false;
-                    parent.value = 0;
+            SIcon {
+                anchors.centerIn: parent;
+                style: "text-h1";
+                iconString: Fa.Icon.download;
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (parent.value == 1.0) {
+                        parent.visible = false;
+                        parent.value = 0;
+                    }
                 }
             }
+
+            onValueChanged: {
+                if (value == 1.0)
+                    style = "success"
+                else
+                    style = "primary"
+            }
         }
-        onValueChanged: {
-            if (value == 1.0)
-                style = "success"
-            else
-                style = "primary"
-        }
-      }
     }
 
     UpdateClient {
         id: update_handle
     }
+
     UpdateDialog {
-        id: bla
+        id: updConfirmDialog
         visible: false
     }
+
     Connections {
         target: update_handle
         function onSignlaFileListReceived() {
@@ -201,19 +203,17 @@ Item {
             progressCircle.value = percentage
         }
         function onSignalUpdateFound(fileInfo) {
-            bla.fileName = fileInfo.filename
-            bla.major = fileInfo.major
-            bla.minor = fileInfo.minor
-            bla.fix = fileInfo.fix
-            // bla.visible = true
-            // bla.Center = progressCircle.Center
-            bla.open()
-            bla.x = 200
-            bla.y = 200
+            updConfirmDialog.fileName = fileInfo.filename
+            updConfirmDialog.major = fileInfo.major
+            updConfirmDialog.minor = fileInfo.minor
+            updConfirmDialog.fix = fileInfo.fix
+            updConfirmDialog.open()
+            updConfirmDialog.x = 200
+            updConfirmDialog.y = 200
         }
     }
     Connections {
-        target: bla
+        target: updConfirmDialog
         function onAccepted() {
             update_handle.slotDoUpdate()
         }

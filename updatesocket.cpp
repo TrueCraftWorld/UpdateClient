@@ -273,7 +273,7 @@ void UpdateSocket::clearOutput()
     outputHeader.bytesToReadOrWrite = 0;
     outputHeader.command = 0;
     outputHeader.dataBlock.clear();
-    // outputHeader.dataBlock.resize(0)
+
     outputHeader.fileSize = 0;
     outputHeader.message.clear();
     outputHeader.messageSize = 0;
@@ -289,7 +289,7 @@ void UpdateSocket::clearInput()
     inputHeader.bytesToReadOrWrite = 0;
     inputHeader.command = 0;
     inputHeader.dataBlock.clear();
-    // outputHeader.dataBlock.resize(0)
+
     inputHeader.fileSize = 0;
     inputHeader.message.clear();
     inputHeader.messageSize = 0;

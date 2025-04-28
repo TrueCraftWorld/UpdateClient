@@ -30,13 +30,12 @@ void UpdateClient::connectToServer()
     socket.reset(new UpdateSocket(0, this));
     QHostAddress updateHost(UPDATE_SERV_IP);
 
-    connect(socket.data(), &UpdateSocket::signalListRecieved, this, [this](QStringList list){
+    connect(socket.data(), &UpdateSocket::signalListRecieved, this, [this] (const QStringList& list) {
         m_updateFileList = list;
         emit signlaFileListReceived();
     });
     connect(socket.data(), &UpdateSocket::connected, this, &UpdateClient::requestUpdate);
     connect(socket.data(), &UpdateSocket::connected, this, &UpdateClient::ready);
-    // connect(socket.data(), &UpdateSocket::fileRecievingStarted, this, &UpdateClient::fileRecievingStart);
     connect(socket.data(), &UpdateSocket::signalFileRecieved, this, &UpdateClient::slotCheckUpdate);
     connect(socket.data(), &UpdateSocket::signalFilePartRecieved, this, &UpdateClient::signalFilePartRecieved);
 
@@ -83,12 +82,17 @@ void UpdateClient::slotDoUpdate()
         QFileInfoList list = dir.entryInfoList(filters,
                                                QDir::Files | QDir::NoDotAndDotDot,
                                                QDir::Time);
-        if (list.size())
-            upd.executeUpdate(list.at(0).absoluteFilePath(), QString(BINARIES_PATH)
-                                                                 + UpdateSubFolds.at(pendingUpdate->fileType())
-                                                                 + pendingUpdate->filename()
-                                                                 + "."
-                                                                 + list.at(0).suffix());
+        if (list.size()) {
+            QString absFileName = QString(BINARIES_PATH)
+                                  + UpdateSubFolds.at(pendingUpdate->fileType())
+                                  + pendingUpdate->filename();
+
+            if (!list.at(0).suffix().isEmpty())
+                absFileName += "."
+                            + list.at(0).suffix();
+
+            upd.executeUpdate(list.at(0).absoluteFilePath(), absFileName);
+        }
     }
 }
 
@@ -131,7 +135,6 @@ void UpdateClient::slotCheckUpdate(const QString &name, int /*fileType*/)
 void UpdateClient::initFileTracker()
 {
 // BINARIES_PATH
-    QDir workFiles(BINARIES_PATH);
     QString mainStr(BINARIES_PATH);
     QStringList paths;
     QFileInfoList filesFound;
@@ -140,7 +143,8 @@ void UpdateClient::initFileTracker()
     paths.append(mainStr + QString("Media"));
     paths.append(mainStr + QString("Recommendation"));
     paths.append(mainStr + QString("Settings"));
-    paths.append(mainStr + QString("Software"));
+    paths.append(mainStr);
+    // paths.append(mainStr + QString("Software"));
 
 
     for (const QString& item : paths) {

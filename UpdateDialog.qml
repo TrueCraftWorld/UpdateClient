@@ -4,37 +4,10 @@ import QtQuick.Layouts 1.15
 
 import StratifyLabs.UI 2.0
 
-// Dialog {
-//     id: blaBla
-//     property string fileName
-//     property int major
-//     property int minor
-//     property int fix
-
-//     // Dialog {
-//     anchors.centerIn: root
-
-//     contentItem:   SPanel {
-//         span: 4;
-//         style: "panel-primary";
-//         heading: "Обнаружен файл";
-
-//         SText {
-//           text: "Обнаружен файл: " + blaBla.fileName
-//                 + "с версией" + blaBla.major + "." + blaBla.minor + "." + blaBla.fix + "."
-//                 + "Обновить ?";
-//         }
-
-//     }
-
-// // }
-// }
-
 Popup {
     id: popupRoot
 
     // Параметры диалога
-    // property string message: ""  // Текст сообщения
         property string fileName: ""
         property int major: 0
         property int minor: 0
@@ -44,50 +17,67 @@ Popup {
     signal rejected()  // Нажата кнопка "Нет"
 
     // Настройки внешнего вида
-    width: 300
-    height: 150
+    width: 640
+    // height: 400
     modal: true
     focus: true
     closePolicy: Popup.NoAutoClose
 
     // Фон
     background: Rectangle {
-        color: "#f0f0f0"
-        border.color: "#cccccc"
-        radius: 5
+        // color: "#f0f0f0"
+        // border.color: "#cccccc"
+        opacity: 0
+        radius: 10
+        anchors.fill: parent
     }
 
-    ColumnLayout {
+    contentItem: SPanel {
+        id: panel
+        style: "panel-primary";
+        heading: "Обнаружен файл";
         anchors.fill: parent
-        anchors.margins: 10
-
-        // Текст сообщения
-        Text {
-            id: messageText
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            text: "Обнаружен файл: " + popupRoot.fileName
-                    + "\n версия: " + popupRoot.major + "." + popupRoot.minor + "." + popupRoot.fix + "."
-                    + "\n Обновить ?";
-            wrapMode: Text.Wrap
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+        ColumnLayout {
+            // Текст сообщения
+            id: message
+            SColumn {
+                SText {
+                    style: "left";
+                    text: popupRoot.fileName;
+                }
+                SText {
+                    style: "left";
+                    text: qsTr("Версия: ")
+                          + popupRoot.major
+                          + "." + popupRoot.minor
+                          + "." + popupRoot.fix;
+                }
+                SText {
+                    style: "left";
+                    text: qsTr("Обновить ?");
+                }
+            }
         }
-
-        // Кнопки
-        RowLayout {
+        SRow {
             Layout.alignment: Qt.AlignHCenter
+            anchors.top: message.bottom
+            anchors.topMargin: 25
+            anchors.horizontalCenter: parent.horizontalCenter
 
-            Button {
+            SButton {
+                span: 4
                 text: "Да"
+                anchors.margins: 25
                 onClicked: {
                     popupRoot.accepted()
                     popupRoot.close()
                 }
             }
 
-            Button {
+            SButton {
+                span: 4
                 text: "Нет"
+                anchors.margins: 25
                 onClicked: {
                     popupRoot.rejected()
                     popupRoot.close()
@@ -95,4 +85,5 @@ Popup {
             }
         }
     }
+
 }
