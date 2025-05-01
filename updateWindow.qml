@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
 import BackEnd 1.0
 import StratifyLabs.UI 2.0
@@ -15,58 +16,72 @@ Item {
         anchors.fill: parent
         color: "darkslategray"
     }
-
-    SRow {
-        id: topButtonRow
+    SLabel {
+        id: screenTitle
+        width: background.width
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
-            margins: 10
         }
-        height: 60
+        style: "label-primary lg";
+        text: qsTr("Скачивание обновлений");
+    }
+
+    SColumn {
+        id: topButtonRow
+        anchors {
+            top: screenTitle.bottom
+            left: parent.left
+            right: listBorder.left
+            margins: 15
+        }
+        rowSpacing: 15
 
         SButton {
             id: connectButton
-            span: 3
+            // span: 3
             text: qsTr("Подключиться")
             style: "btn-secondary lg"
-            anchors {
+            Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
+            Layout.preferredWidth: updateRequester.width * .35
 
-                margins: 10
-            }
             onClicked: update_handle.connectToServer()
         }
         SButton {
             id: updateButton
             text: qsTr("Обновить список")
             style: "btn-primary lg"
-            span: 3
-            anchors {
-                margins: 10
-            }
+            Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
+            Layout.preferredWidth: updateRequester.width * .35
+            // span: 3
+            // anchors {
+            //     margins: 10
+            // }
             enabled: false
             onClicked: update_handle.requestUpdate()
         }
         SPanel {
-            // id: bu
-            span: 4
+            id: fileSelectorPanel
+            // span: 4
             style: "btn-naked lg"
+            Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
+            Layout.preferredWidth: updateRequester.width * .35
             SRow {
-                SLabel {
-                    // span: 6
-                    style: "btn-naked lg"
-                    text: "Категория файла"
-                    color: "black"
-                }
+            SLabel {
+                // span: 6
+                style: "btn-naked lg"
+                text: "Категория файла"
+                color: "black"
+            }
 
-                SDropdown {
-                    id: fileTypeSelector
-                    style: "lg"
-                    // span: 6
-                    enabled: false
-                    onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
-                }
+            SDropdown {
+                id: fileTypeSelector
+                style: "lg"
+                // span: 6
+                enabled: false
+                onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
+            }
             }
         }
     }
@@ -90,13 +105,10 @@ Item {
         border.width: 1
         border.color: "lightgray"
         anchors {
-            left: parent.left
+            right: parent.right
             bottom: returnButton.top
-            top: topButtonRow.bottom
-            topMargin: 70
-            bottomMargin: 10
-            leftMargin: 20
-            rightMargin: 10
+            top: screenTitle.bottom
+            margins:15
         }
         SLabel {
             id: listLabel
@@ -139,9 +151,8 @@ Item {
     SColumn {
         anchors {
             bottom: parent.bottom
-            top: topButtonRow.bottom
-            right: parent.right
-            left: listBorder.right
+            top: listBorder.bottom
+            horizontalCenter: listBorder.horizontalCenter
         }
 
         SProgressCircle {
