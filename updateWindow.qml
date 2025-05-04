@@ -40,9 +40,8 @@ Item {
 
         SButton {
             id: connectButton
-            // span: 3
             text: qsTr("Подключиться")
-            style: "btn-secondary lg"
+            style: "btn-primary lg"
             Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
             Layout.preferredWidth: updateRequester.width * .35
 
@@ -54,35 +53,62 @@ Item {
             style: "btn-primary lg"
             Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
             Layout.preferredWidth: updateRequester.width * .35
-            // span: 3
-            // anchors {
-            //     margins: 10
-            // }
             enabled: false
             onClicked: update_handle.requestUpdate()
         }
-        SPanel {
-            id: fileSelectorPanel
-            // span: 4
-            style: "btn-naked lg"
-            Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
-            Layout.preferredWidth: updateRequester.width * .35
-            SRow {
-            SLabel {
-                // span: 6
-                style: "btn-naked lg"
-                text: "Категория файла"
-                color: "black"
-            }
 
-            SDropdown {
-                id: fileTypeSelector
-                style: "lg"
-                // span: 6
-                enabled: false
-                onCurrentIndexChanged: update_handle.changeFileType(fileTypeSelector.currentIndex)
+    }
+
+    DropDownPanel {
+        id: fileTypeSelector
+        title: qsTr("Категория файла")
+        anchors {
+            top: topButtonRow.bottom
+            left: parent.left
+            right: listBorder.left
+            margins: 25
+        }
+
+        onDropDownIdxChanged: update_handle.changeFileType(fileTypeSelector.index)
+    }
+
+    SProgressCircle {
+
+        id: progressCircle;
+
+        property double stepSize;
+
+        style: "primary";
+        value: 0.0;
+        visible: false
+
+        anchors {
+            top: fileTypeSelector.bottom
+            horizontalCenter: topButtonRow.horizontalCenter
+            topMargin: height * .75
+        }
+
+        SIcon {
+            anchors.centerIn: parent;
+            style: "text-h1";
+            iconString: Fa.Icon.download;
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (parent.value == 1.0) {
+                    parent.visible = false;
+                    parent.value = 0;
+                }
             }
-            }
+        }
+
+        onValueChanged: {
+            if (value == 1.0)
+                style = "success"
+            else
+                style = "primary"
         }
     }
     SButton {
@@ -92,7 +118,7 @@ Item {
         anchors {
             left:parent.left
             bottom: parent.bottom
-            margins: 10
+            margins: 15
         }
         onClicked: updateRequester.returnButtonPressed()
     }
@@ -106,7 +132,7 @@ Item {
         border.color: "lightgray"
         anchors {
             right: parent.right
-            bottom: returnButton.top
+            bottom: returnButton.bottom
             top: screenTitle.bottom
             margins:15
         }
@@ -148,48 +174,6 @@ Item {
         }
     }
 
-    SColumn {
-        anchors {
-            bottom: parent.bottom
-            top: listBorder.bottom
-            horizontalCenter: listBorder.horizontalCenter
-        }
-
-        SProgressCircle {
-
-            id: progressCircle;
-
-            property double stepSize;
-
-            style: "primary";
-            value: 0.0;
-            visible: false
-
-            SIcon {
-                anchors.centerIn: parent;
-                style: "text-h1";
-                iconString: Fa.Icon.download;
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    if (parent.value == 1.0) {
-                        parent.visible = false;
-                        parent.value = 0;
-                    }
-                }
-            }
-
-            onValueChanged: {
-                if (value == 1.0)
-                    style = "success"
-                else
-                    style = "primary"
-            }
-        }
-    }
-
     UpdateClient {
         id: update_handle
     }
@@ -207,7 +191,7 @@ Item {
         function onReady() {
             updateButton.enabled = true;
             fileTypeSelector.enabled = true;
-            fileTypeSelector.model = update_handle.fileTypes()
+            fileTypeSelector.dropModel = update_handle.fileTypes()
         }
         function onSignalFilePartRecieved(percentage) {
             progressCircle.visible = true;

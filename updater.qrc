@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>updateWindow.qml</file>
         <file>UpdateDialog.qml</file>
+        <file>DropDownPanel.qml</file>
     </qresource>
 </RCC>
