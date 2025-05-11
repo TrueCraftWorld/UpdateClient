@@ -49,6 +49,7 @@ InternalUpdater::InternalUpdater(Types type)
 {
     switch (type) {
     case SoftwareUpdate:
+    case FirmwareUpdate:
         registerUpdateHandler(updateApp);
         break;
     case MediaUpdate:

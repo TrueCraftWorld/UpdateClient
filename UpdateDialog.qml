@@ -54,7 +54,7 @@ Popup {
                 }
                 SText {
                     style: "left";
-                    text: qsTr("Обновить ?");
+                    text: qsTr("Обновить?");
                 }
             }
         }

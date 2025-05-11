@@ -78,7 +78,7 @@ void UpdateClient::slotDoUpdate()
         InternalUpdater upd(static_cast<InternalUpdater::Types>(pendingUpdate->fileType()));
         QDir dir(DOWNLOAD_PATH);
         QStringList filters;
-        filters << ("*" +pendingUpdate->filename() + "*");
+        filters << ("*" + pendingUpdate->filename() + "*");
         QFileInfoList list = dir.entryInfoList(filters,
                                                QDir::Files | QDir::NoDotAndDotDot,
                                                QDir::Time);
@@ -151,6 +151,7 @@ void UpdateClient::initFileTracker()
         QDir dir(item);
         if (!dir.exists()) {
             dir.mkpath(item);
+
             continue;
         }
         filesFound.append(dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks));
