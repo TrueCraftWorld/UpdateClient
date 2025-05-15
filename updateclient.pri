@@ -4,6 +4,7 @@ CONFIG += c++17 link_pkgconfig disable-desktop
  
 
 SOURCES += \
+    $$PWD/FileChecker.cpp \
     $$PWD/FileVersionInfo.cpp \
     $$PWD/InternalUpdater.cpp \
         $$PWD/updateclient.cpp \
@@ -12,6 +13,7 @@ SOURCES += \
 RESOURCES += $$PWD/updater.qrc
 
 HEADERS += \
+    $$PWD/FileChecker.h \
     $$PWD/FileVersionInfo.h \
     $$PWD/InternalUpdater.h \
     $$PWD/abstractupdateprovider.h \

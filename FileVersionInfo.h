@@ -3,17 +3,19 @@
 
 #include <QString>
 #include <QRegularExpression>
+#include <QFileInfo>
 
 class FileVersionInfo {
 
-// public:
     Q_GADGET
     Q_PROPERTY(QString filename READ filename WRITE setFilename FINAL)
     Q_PROPERTY(int major READ major WRITE setMajor FINAL)
     Q_PROPERTY(int minor READ minor WRITE setMinor FINAL)
     Q_PROPERTY(int fix READ fix WRITE setFix FINAL)
     Q_PROPERTY(int valid READ valid WRITE setFix FINAL)
+
 public:
+    // FileVersionInfo() = default;
     void init(const QString& input);
 
     QString filename() const;
@@ -30,6 +32,9 @@ public:
     int valid() const;
     void setValid(int newValid);
 
+    Q_INVOKABLE QString completeName();
+    // Q_INVOKABLE QString absoluteName();
+
     static QList<FileVersionInfo> readFromIni(const QString& iniPath);
     static void writeToIni(const QList<FileVersionInfo>& files, const QString& iniPath);
 
@@ -37,6 +42,7 @@ public:
     void setFileType(int newFileType);
 
 private:
+    QFileInfo m_internalInfo;
     QString m_filename;
     int m_major;
     int m_minor;
@@ -44,8 +50,6 @@ private:
     int m_valid;
     int m_fileType;
 };
-
-
 
 Q_DECLARE_METATYPE(FileVersionInfo)
 

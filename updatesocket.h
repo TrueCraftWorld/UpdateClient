@@ -6,8 +6,9 @@
 #include <QTimer>
 #include <QDataStream>
 
-#include "package.h"
 #include "updateConfig.h"
+#include "package.h"
+
 
 class UpdateSocket : public QTcpSocket
 {
@@ -18,12 +19,14 @@ public:
 
     void requestFileList(TransferHeader::FileType fileType);
     void sendFileList(QStringList list);
-    void requestFile(const QString& name);
+    void requestFile(const QString& name,
+                     TransferHeader::FileType fileType = TransferHeader::DevelopmentFiles);
     void sendFile(const QString &path);
 
 signals:
     void signalListRecieved(QStringList list);
     void signalFileRecieved(const QString& path, int fileType);
+    void signalFileRecievedError(const QString& path);
     void signalFilePartRecieved(double fileSuccesPercentage);
 
     void signalFileRequested(const QString&);
@@ -42,7 +45,7 @@ private slots:
 
     void recieveFile(const QString &fileName, const QString &destPath=DOWNLOAD_PATH);
 
-    void sendFilePart();
+    void sendFilePart(int lasrSendSize);
 
     void readMessage();
     void recieveFile();
@@ -50,6 +53,12 @@ private slots:
 private:
     void clearOutput();
     void clearInput();
+    /**
+     * @brief sendFileCheck отправка чексуммы SHA-256 файла
+     * @param filePath путь к файлу
+     *
+     */
+    void sendFileCheck(const QString& filePath);
 
     FileInfo inputFile;
     FileInfo outputFile;
@@ -57,7 +66,11 @@ private:
     TransferHeader inputHeader;
     int socketID;
 
+    int m_toNextPart = 0;
+
+
     QTimer m_updateTimer;
+    void prepareFileInfo(const QString& checkSum);
 };
 
 #endif // UPDATESOCKET_H

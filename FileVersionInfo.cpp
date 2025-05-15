@@ -5,11 +5,10 @@
 
 static QRegularExpression regex("^(.*?)_(\\d+)-(\\d+)-(\\d+)$");
 
-
 void FileVersionInfo::init(const QString &input)
 {
-    QFileInfo info(input);
-    QRegularExpressionMatch match = regex.match(info.baseName());
+    m_internalInfo = QFileInfo(input);
+    QRegularExpressionMatch match = regex.match(m_internalInfo.baseName());
 
     if (match.hasMatch()) {
         m_filename = match.captured(1);
@@ -70,12 +69,16 @@ void FileVersionInfo::setValid(int newValid)
     m_valid = newValid;
 }
 
+QString FileVersionInfo::completeName()
+{
+    return (m_internalInfo.baseName() + "." + m_internalInfo.completeSuffix());
+}
+
 QList<FileVersionInfo> FileVersionInfo::readFromIni(const QString &iniPath)
 {
     QList<FileVersionInfo> files;
     QSettings settings(iniPath, QSettings::IniFormat);
 
-    // Get all section names (which are filenames without suffix)
     QStringList sections = settings.childGroups();
 
     for (const QString& section : qAsConst(sections)) {
@@ -112,6 +115,7 @@ void FileVersionInfo::writeToIni(const QList<FileVersionInfo> &files, const QStr
 
         settings.endGroup();
     }
+    // settings.
 }
 
 int FileVersionInfo::fileType() const

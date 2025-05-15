@@ -143,8 +143,8 @@ void UpdateClient::initFileTracker()
     paths.append(mainStr + QString("Media"));
     paths.append(mainStr + QString("Recommendation"));
     paths.append(mainStr + QString("Settings"));
+    paths.append(mainStr + QString("Software"));
     paths.append(mainStr);
-    // paths.append(mainStr + QString("Software"));
 
 
     for (const QString& item : paths) {

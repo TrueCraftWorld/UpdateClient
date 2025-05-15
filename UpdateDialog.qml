@@ -34,38 +34,44 @@ Popup {
 
     contentItem: SPanel {
         id: panel
-        style: "panel-primary";
+        style: "panel-primary lg";
         heading: "Обнаружен файл";
         anchors.fill: parent
+
         ColumnLayout {
+            anchors.horizontalCenter: parent.horizontalCenter
             // Текст сообщения
             id: message
             SColumn {
+
                 SText {
-                    style: "left";
+                    style: "center lg";
                     text: popupRoot.fileName;
                 }
                 SText {
-                    style: "left";
+                    style: "center";
                     text: qsTr("Версия: ")
                           + popupRoot.major
                           + "." + popupRoot.minor
                           + "." + popupRoot.fix;
                 }
                 SText {
-                    style: "left";
+                    style: "center";
                     text: qsTr("Обновить?");
                 }
             }
         }
         SRow {
             Layout.alignment: Qt.AlignHCenter
-            anchors.top: message.bottom
-            anchors.topMargin: 25
-            anchors.horizontalCenter: parent.horizontalCenter
-
+            anchors {
+                top: message.bottom
+                topMargin: 25
+                horizontalCenter: parent.horizontalCenter
+                left: parent.left
+                right: parent.right
+            }
             SButton {
-                span: 4
+                span: 5
                 text: "Да"
                 anchors.margins: 25
                 onClicked: {
@@ -75,7 +81,7 @@ Popup {
             }
 
             SButton {
-                span: 4
+                span: 5
                 text: "Нет"
                 anchors.margins: 25
                 onClicked: {
@@ -85,5 +91,4 @@ Popup {
             }
         }
     }
-
 }

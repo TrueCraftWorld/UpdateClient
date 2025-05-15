@@ -9,12 +9,12 @@ constexpr qint64 magicNum = 0x004AFFB2009CFF31;
 constexpr int headerFieldCount = 5;
 constexpr int headerSizeBytes = headerFieldCount * sizeof(qint64);
 
-const QStringList names = {"Разработка"
+const QStringList names = {"Рарзработка"
                            , "Обновление микропрограмм"
-                            , "Обновление ПО"
-                            , "Обновление медиафайлов"
-                            , "Обновление конфигурации"
-                            , "Обновление рекомендаций"};
+                           , "Обновление ПО"
+                           , "Обновление медиафайлов"
+                           , "Обновление конфигурации"
+                           , "Обновление рекомендаций"};
 
 struct TransferHeader {
 
@@ -54,6 +54,8 @@ struct FileInfo
 {
     qint64 bytesRecived;
     qint64 awaitedSize;
+    QString fileCheckSum;
+    // qint
     QSharedPointer<QFile> localFile;
 };
 
