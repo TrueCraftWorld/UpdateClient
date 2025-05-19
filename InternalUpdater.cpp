@@ -49,10 +49,10 @@ InternalUpdater::InternalUpdater(Types type)
 {
     switch (type) {
     case SoftwareUpdate:
-    case FirmwareUpdate:
-    case DevelopmentFiles:
         registerUpdateHandler(updateApp);
         break;
+    case FirmwareUpdate:
+    case DevelopmentFiles:
     case MediaUpdate:
     case RecommendationUpdate:
     case SettingsUpdate:

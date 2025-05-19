@@ -8,7 +8,7 @@ UpdateSocket::UpdateSocket(int ID, QObject *parent)
 {
     clearInput();
     clearOutput();
-    setSocketOption(QAbstractSocket::SendBufferSizeSocketOption, 10*payloadSize);
+    setSocketOption(QAbstractSocket::SendBufferSizeSocketOption, 10 * payloadSize);
     connect(this,&UpdateSocket::readyRead,this,&UpdateSocket::readMessage);
 }
 
@@ -51,6 +51,7 @@ void UpdateSocket::sendFile(const QString& path)
               << qint64(0)
               << qint64(0)
               << qint64(0);
+
     if (!outputHeader.message.isEmpty())
         outStream << outputHeader.message;
 
@@ -63,6 +64,8 @@ void UpdateSocket::sendFile(const QString& path)
               << outputHeader.messageSize
               << outputHeader.fileSize
               << outputHeader.fileType;
+    //записываем размер отправляемого, чтобы понять когда эта партия завершится
+    m_toNextPart = outputHeader.bytesToReadOrWrite;
 
     connect(this, &UpdateSocket::bytesWritten, this, &UpdateSocket::sendFilePart);
     write(outputHeader.dataBlock.constData(), outputHeader.bytesToReadOrWrite);
@@ -143,7 +146,6 @@ void UpdateSocket::sendFilePart(int lasrSendSize)
     }
 }
 
-
 void UpdateSocket::readMessage()
 {
     if (bytesAvailable() <= 0) {
@@ -204,6 +206,7 @@ void UpdateSocket::readMessage()
         emit signalListRequested(inputHeader.fileType);
         clearInput();
     }
+    break;
     case _FILE_CHECK_:
     {
         prepareFileInfo(inputHeader.message);
@@ -281,10 +284,12 @@ void UpdateSocket::recieveFile() {
 
         if ((tmp.isEmpty())
             || (FileChecker::getCheckSum(inputHeader.message)
-                == tmp))
+                == tmp)) {
+            qDebug() << "checksum OK!";
             emit signalFileRecieved(inputHeader.message, inputHeader.fileType);
-        else
+        } else {
             emit signalFileRecievedError(inputHeader.message);
+        }
 
         clearInput();
     }
