@@ -6,9 +6,9 @@
 #include <QFileInfo>
 
 const QStringList UpdateSubFolds = {
-    (""),
+    ("Development/"), //debug files
     ("Firmware/"),
-    ("Software/"),
+    (""), //software to root folder
     ("Media/"),
     ("Settings/"),
     ("Recommendation/")

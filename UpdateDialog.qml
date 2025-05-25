@@ -8,10 +8,12 @@ Popup {
     id: popupRoot
 
     // Параметры диалога
-        property string fileName: ""
-        property int major: 0
-        property int minor: 0
-        property int fix: 0
+    property string fileName: ""
+    property string version: ""
+    property string oldVersion: ""
+    // property int major: 0
+    // property int minor: 0
+    // property int fix: 0
     // Сигналы
     signal accepted()  // Нажата кнопка "Да"
     signal rejected()  // Нажата кнопка "Нет"
@@ -51,9 +53,19 @@ Popup {
                 SText {
                     style: "center";
                     text: qsTr("Версия: ")
-                          + popupRoot.major
-                          + "." + popupRoot.minor
-                          + "." + popupRoot.fix;
+                            + popupRoot.version
+                          // + popupRoot.major
+                          // + "." + popupRoot.minor
+                          // + "." + popupRoot.fix;
+                }
+                SText {
+                    style: "center";
+                    text: qsTr("Предыдущая Версия: ")
+                          + popupRoot.oldVersion
+                    // + popupRoot.major
+                    // + "." + popupRoot.minor
+                    // + "." + popupRoot.fix;
+                    visible: (popupRoot.oldVersion.length != 0)
                 }
                 SText {
                     style: "center";

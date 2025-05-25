@@ -5,6 +5,7 @@
 #include <QRegularExpression>
 #include <QFileInfo>
 
+
 class FileVersionInfo {
 
     Q_GADGET
@@ -13,12 +14,13 @@ class FileVersionInfo {
     Q_PROPERTY(int minor READ minor WRITE setMinor FINAL)
     Q_PROPERTY(int fix READ fix WRITE setFix FINAL)
     Q_PROPERTY(int valid READ valid WRITE setFix FINAL)
+    Q_PROPERTY(QString checkSum READ checkSum FINAL)
 
 public:
     // FileVersionInfo() = default;
     void init(const QString& input);
 
-    QString filename() const;
+    const QString& filename() const;
     void setFilename(const QString &newFilename);
     int major() const;
     void setMajor(int newMajor);
@@ -33,13 +35,16 @@ public:
     void setValid(int newValid);
 
     Q_INVOKABLE QString completeName();
-    // Q_INVOKABLE QString absoluteName();
+    Q_INVOKABLE QString versionString();
 
     static QList<FileVersionInfo> readFromIni(const QString& iniPath);
     static void writeToIni(const QList<FileVersionInfo>& files, const QString& iniPath);
 
     int fileType() const;
     void setFileType(int newFileType);
+
+    const QString& checkSum() const;
+    void setCheckSum(const QString & checkSum);
 
 private:
     QFileInfo m_internalInfo;
@@ -49,6 +54,7 @@ private:
     int m_fix;
     int m_valid;
     int m_fileType;
+    QString m_checkSum;
 };
 
 Q_DECLARE_METATYPE(FileVersionInfo)

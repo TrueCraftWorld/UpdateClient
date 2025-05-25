@@ -74,7 +74,7 @@ signals:
     // void fileRecievingStart(int partsAwaited);
     void signalFilePartRecieved(double percentage);
 
-    void signalUpdateFound(const FileVersionInfo&);
+    void signalUpdateFound(const FileVersionInfo&, const QString&);
 
     // void signalUpdateDial
 public slots:
@@ -89,7 +89,7 @@ private:
     void sendData(int written);
     void clearNetworkData();
     void initFileTracker();
-    void prepareUpdate(const FileVersionInfo& file);
+    void prepareUpdate(const FileVersionInfo& file, const QString& oldVersion = "");
 
 private:
     QSharedPointer<UpdateSocket> socket;

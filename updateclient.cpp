@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QSettings>
+#include "FileChecker.h"
 
 #include "updateConfig.h"
 
@@ -103,33 +104,38 @@ void UpdateClient::slotRejectUpdate()
 
 void UpdateClient::slotCheckUpdate(const QString &name, int /*fileType*/)
 {
-    FileVersionInfo info;
-    info.init(name);
-    if (!info.valid())
+    FileVersionInfo newFile;
+    newFile.init(name);
+    if (!newFile.valid())
         return;
     int count = 0;
-    info.setFileType(m_type);
+    newFile.setFileType(m_type);
     for (const auto &item : qAsConst(m_binaries)) {
-        if (item.filename() != info.filename()) {
+        if (item.filename() != newFile.filename()) {
             ++count;
             continue;
         }
-        if (item.major() < info.major()) {
-            prepareUpdate(info);
+        if (item.checkSum() != newFile.checkSum()) {
+            prepareUpdate(newFile, item.checkSum());
             return;
-        } else if (item.major() == info.major()
-                   && item.minor() < info.minor()) {
-            prepareUpdate(info);
-            return;
-        } else if (item.major() == info.major()
-                 && item.minor() == info.minor()
-                   && item.fix() < info.fix()) {
-            prepareUpdate(info);
-            return;
+        } else {
+            ++count;
+            continue;
         }
+        // if (item.major() < newFile.major()) {
+        // } else if (item.major() == newFile.major()
+        //            && item.minor() < newFile.minor()) {
+        //     prepareUpdate(newFile);
+        //     return;
+        // } else if (item.major() == newFile.major()
+        //          && item.minor() == newFile.minor()
+        //            && item.fix() < newFile.fix()) {
+        //     prepareUpdate(newFile);
+        //     return;
+        // }
     }
     if (count == m_binaries.size())
-        prepareUpdate(info);
+        prepareUpdate(newFile);
 }
 
 void UpdateClient::initFileTracker()
@@ -163,23 +169,44 @@ void UpdateClient::initFileTracker()
 
     if (iniFile.exists()) {
         knownFiles = FileVersionInfo::readFromIni(iniFile.absoluteFilePath());
-        auto iter = filesFound.begin();
-        while (iter != filesFound.end()) {
-            for (const auto& item : qAsConst(knownFiles)) {
-                if (item.filename() == iter->baseName()) {
-                    iter = filesFound.erase(iter);
-                    continue;
-                }
-            }
-            FileVersionInfo newFile;
-            newFile.setFilename(iter->baseName());
-            newFile.setMajor(0);
-            newFile.setMinor(0);
-            newFile.setFix(0);
-            newFile.setValid(true);
-            unknownFiles.append(newFile);
+    }
+
+    ///todo - нужно также обнулять записи для тех файлов что мы не нашли.
+
+    auto iter = filesFound.begin();
+    while (iter != filesFound.end()) {
+        if (iter->baseName() == "file-versions"){
             ++iter;
+            continue;
         }
+        // for (const auto& item : qAsConst(knownFiles)) {
+        QString bName = iter->baseName();
+        //получаем первое совпадение по имени
+        auto item = std::find_if(knownFiles.constBegin(),
+                                 knownFiles.constEnd(),
+                                 [&bName](const FileVersionInfo& item) {
+                                    return (item.filename() == bName);
+                                 });
+        //если совпадение было, проверям контрольнюу сумму
+        if (item != knownFiles.constEnd()) {
+            if (FileChecker::getCheckSum(iter->absoluteFilePath())
+                == item->checkSum()) {
+                //если всё совпало - этот файл знаем - сдвигаем здесь итератор и не создаём новых записей
+                iter = filesFound.erase(iter);
+                continue;
+            }
+        }
+        // иначе этот файл новый и ему нужна новая запись в списки известных файлов в рабочей директории
+        FileVersionInfo newFile;
+        newFile.setFilename(iter->baseName());
+        newFile.setMajor(0);
+        newFile.setMinor(0);
+        newFile.setFix(0);
+        newFile.setValid(true);
+        newFile.setCheckSum(FileChecker::getCheckSum(iter->absoluteFilePath()));
+
+        unknownFiles.append(newFile);
+        ++iter;
     }
 
     FileVersionInfo::writeToIni(unknownFiles, iniFile.absoluteFilePath());
@@ -187,10 +214,10 @@ void UpdateClient::initFileTracker()
     m_binaries = knownFiles + unknownFiles;
 }
 
-void UpdateClient::prepareUpdate(const FileVersionInfo& upd)
+void UpdateClient::prepareUpdate(const FileVersionInfo& upd, const QString& oldVersion)
 {
     pendingUpdate.emplace(upd);
-    emit signalUpdateFound(upd);
+    emit signalUpdateFound(upd, oldVersion);
 }
 
 void UpdateClient::setBinaries(const QList<FileVersionInfo> &newBinaries)

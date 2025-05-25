@@ -42,7 +42,7 @@ Item {
             id: connectButton
             text: qsTr("Подключиться")
             style: "btn-primary lg"
-            Layout.alignment: Qt.AlignHCenter |Qt.AlignTop
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             Layout.preferredWidth: updateRequester.width * .35
 
             onClicked: update_handle.connectToServer()
@@ -56,7 +56,6 @@ Item {
             enabled: false
             onClicked: update_handle.requestUpdate()
         }
-
     }
 
     DropDownPanel {
@@ -197,11 +196,16 @@ Item {
             progressCircle.visible = true;
             progressCircle.value = percentage
         }
-        function onSignalUpdateFound(fileInfo) {
+        function onSignalUpdateFound(fileInfo, oldVersion) {
             updConfirmDialog.fileName = fileInfo.filename
-            updConfirmDialog.major = fileInfo.major
-            updConfirmDialog.minor = fileInfo.minor
-            updConfirmDialog.fix = fileInfo.fix
+            updConfirmDialog.version = fileInfo.versionString()
+
+            updConfirmDialog.oldVersion = oldVersion
+
+            // updConfirmDialog.major = fileInfo.major
+            // updConfirmDialog.minor = fileInfo.minor
+            // updConfirmDialog.fix = fileInfo.fix
+
             updConfirmDialog.open()
             updConfirmDialog.x = 200
             updConfirmDialog.y = 200

@@ -1,4 +1,5 @@
 #include "FileVersionInfo.h"
+#include "FileChecker.h"
 
 #include <QSettings>
 #include <QFileInfo>
@@ -8,6 +9,7 @@ static QRegularExpression regex("^(.*?)_(\\d+)-(\\d+)-(\\d+)$");
 void FileVersionInfo::init(const QString &input)
 {
     m_internalInfo = QFileInfo(input);
+
     QRegularExpressionMatch match = regex.match(m_internalInfo.baseName());
 
     if (match.hasMatch()) {
@@ -15,11 +17,12 @@ void FileVersionInfo::init(const QString &input)
         m_major = match.captured(2).toInt();
         m_minor = match.captured(3).toInt();
         m_fix = match.captured(4).toInt();
+        m_checkSum = FileChecker::getCheckSum(m_internalInfo.absoluteFilePath());
         m_valid = true;
     }
 }
 
-QString FileVersionInfo::filename() const
+const QString& FileVersionInfo::filename() const
 {
     return m_filename;
 }
@@ -91,6 +94,7 @@ QList<FileVersionInfo> FileVersionInfo::readFromIni(const QString &iniPath)
         file.setMinor(settings.value("minor").toUInt());
         file.setFix(settings.value("fix").toUInt());
         file.setValid(settings.value("valid").toBool());
+        file.m_checkSum = settings.value("checksum").toString();
 
         files.append(file);
         settings.endGroup();
@@ -112,6 +116,7 @@ void FileVersionInfo::writeToIni(const QList<FileVersionInfo> &files, const QStr
         settings.setValue("minor", file.minor());
         settings.setValue("fix", file.fix());
         settings.setValue("valid", file.valid());
+        settings.setValue("checksum", file.m_checkSum);
 
         settings.endGroup();
     }
@@ -126,4 +131,19 @@ int FileVersionInfo::fileType() const
 void FileVersionInfo::setFileType(int newFileType)
 {
     m_fileType = newFileType;
+}
+
+QString FileVersionInfo::versionString()
+{
+    return QString("%1.%2.%3").arg(m_major).arg(m_minor).arg(m_fix);
+}
+
+const QString&  FileVersionInfo::checkSum() const
+{
+    return m_checkSum;
+}
+
+void FileVersionInfo::setCheckSum(const QString &checkSum)
+{
+    m_checkSum = checkSum;
 }

@@ -1,8 +1,5 @@
 #include "FileChecker.h"
 
-// FileChecker::FileChecker() {}
-
-
 #include <QCryptographicHash>
 #include <QFile>
 #include <QDebug>
