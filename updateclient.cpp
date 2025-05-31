@@ -9,8 +9,11 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QSettings>
-#include "FileChecker.h"
+#include <QFuture>
 
+#include "qtconcurrentrun.h"
+
+#include "FileChecker.h"
 #include "updateConfig.h"
 
 /**
@@ -23,7 +26,19 @@
 UpdateClient::UpdateClient( QObject *parent)
     : QObject(parent)
 {
-    initFileTracker();
+
+    connect(&watcher,
+            &QFutureWatcher<QList<FileVersionInfo>>::finished,
+            this,
+            [this] () {
+                m_binaries = watcher.result();
+                emit signalFilesChecked();
+    });
+
+    // Start the computation.
+    QFuture<QList<FileVersionInfo>> future = QtConcurrent::run(UpdateClient::initFileTracker);
+    watcher.setFuture(future);
+    // initFileTracker();
 }
 
 void UpdateClient::connectToServer()
@@ -122,23 +137,12 @@ void UpdateClient::slotCheckUpdate(const QString &name, int /*fileType*/)
             ++count;
             continue;
         }
-        // if (item.major() < newFile.major()) {
-        // } else if (item.major() == newFile.major()
-        //            && item.minor() < newFile.minor()) {
-        //     prepareUpdate(newFile);
-        //     return;
-        // } else if (item.major() == newFile.major()
-        //          && item.minor() == newFile.minor()
-        //            && item.fix() < newFile.fix()) {
-        //     prepareUpdate(newFile);
-        //     return;
-        // }
     }
     if (count == m_binaries.size())
         prepareUpdate(newFile);
 }
 
-void UpdateClient::initFileTracker()
+QList<FileVersionInfo> UpdateClient::initFileTracker()
 {
 // BINARIES_PATH
     QString mainStr(BINARIES_PATH);
@@ -210,8 +214,8 @@ void UpdateClient::initFileTracker()
     }
 
     FileVersionInfo::writeToIni(unknownFiles, iniFile.absoluteFilePath());
+    return (knownFiles + unknownFiles);
 
-    m_binaries = knownFiles + unknownFiles;
 }
 
 void UpdateClient::prepareUpdate(const FileVersionInfo& upd, const QString& oldVersion)

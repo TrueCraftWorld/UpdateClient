@@ -71,6 +71,22 @@ Item {
         onDropDownIdxChanged: update_handle.changeFileType(fileTypeSelector.index)
     }
 
+    SBadge {
+        id: loadingIcon
+        style: "icon-spin";
+        // span: 4;
+
+        iconString: Fa.Icon.refresh;
+        // label: "Проверка \n локальных файлов";
+        // attr.animationPeriod: 2000;
+        anchors {
+            // top: fileTypeSelector.bottom
+            verticalCenter: progressCircle.verticalCenter
+            horizontalCenter: topButtonRow.horizontalCenter
+            // topMargin: 120
+        }
+    }
+
     SProgressCircle {
 
         id: progressCircle;
@@ -209,6 +225,9 @@ Item {
             updConfirmDialog.open()
             updConfirmDialog.x = 200
             updConfirmDialog.y = 200
+        }
+        function onSignalFilesChecked() {
+            loadingIcon.visible = false;
         }
     }
     Connections {

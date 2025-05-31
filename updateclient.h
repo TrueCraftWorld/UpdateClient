@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QDataStream>
 #include <QQmlEngine>
-
+#include <QFutureWatcher>
 #include <optional>
 
 // #include "package.h"
@@ -76,6 +76,8 @@ signals:
 
     void signalUpdateFound(const FileVersionInfo&, const QString&);
 
+    void signalFilesChecked();
+
     // void signalUpdateDial
 public slots:
     void slotDoUpdate();
@@ -85,10 +87,11 @@ private slots:
     void slotCheckUpdate(const QString&, int fileType);
 
 private:
+    QFutureWatcher<QList<FileVersionInfo>> watcher;
     void setBinaries(const QList<FileVersionInfo> &newBinaries);
     void sendData(int written);
     void clearNetworkData();
-    void initFileTracker();
+    static QList<FileVersionInfo> initFileTracker();
     void prepareUpdate(const FileVersionInfo& file, const QString& oldVersion = "");
 
 private:
