@@ -25,7 +25,6 @@ HEADERS += \
 
 DISTFILES += \
     $$PWD/DropDownPanel.qml \
-    $$PWD/FileList.qml \
     $$PWD/UpdateDialog.qml \
     $$PWD/updateWindow.qml
 

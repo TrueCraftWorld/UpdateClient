@@ -154,7 +154,7 @@ Item {
         SLabel {
             id: listLabel
             style: "label-primary lg"
-            text: "Доступные файлы"
+            text: qsTr("Доступные файлы")
             width: parent.width
             anchors {
                 top: parent.top

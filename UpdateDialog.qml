@@ -37,7 +37,7 @@ Popup {
     contentItem: SPanel {
         id: panel
         style: "panel-primary lg";
-        heading: "Обнаружен файл";
+        heading: qsTr("Обнаружен файл");
         anchors.fill: parent
 
         ColumnLayout {
@@ -84,7 +84,7 @@ Popup {
             }
             SButton {
                 span: 5
-                text: "Да"
+                text: qsTr("Да")
                 anchors.margins: 25
                 onClicked: {
                     popupRoot.accepted()
@@ -94,7 +94,7 @@ Popup {
 
             SButton {
                 span: 5
-                text: "Нет"
+                text: qsTr("Нет")
                 anchors.margins: 25
                 onClicked: {
                     popupRoot.rejected()
